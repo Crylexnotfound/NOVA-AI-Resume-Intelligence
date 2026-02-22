@@ -61,4 +61,4 @@ This project is optimized for AI-assisted development. You can ask the AI agent 
 
 ## 📂 Project Structure
 
-Currently, this repository contains the project structure (empty files) to serve as a template. Please add logic to the corresponding files in `js/`, `backend/`, and `lib/` as you develop features.
+Currently, this repository contains the project structure (empty files) to serve as a template. Please add logic to the corresponding files in `js/` and `lib/` as you develop features.

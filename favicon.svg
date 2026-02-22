@@ -1,0 +1,35 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#065f46" />
+      <stop offset="100%" style="stop-color:#10b981" />
+    </linearGradient>
+  </defs>
+
+  <!-- Detailed Brain Silhouette (Lobed structure) -->
+  <path d="M50 10C40 10 32 14 28 20C24 18 18 20 15 25C12 30 12 38 15 42C12 45 10 50 10 58C10 75 25 85 35 90C40 92 60 92 65 90C75 85 90 75 90 58C90 50 88 45 85 42C88 38 88 30 85 25C82 20 76 18 72 20C68 14 60 10 50 10Z" fill="url(#brainGrad)" opacity="0.1"/>
+  
+  <!-- Outer Cerebral Boundary (Hand-drawn feel) -->
+  <path d="M50 15C38 15 28 20 25 30C20 28 15 32 15 40C15 48 18 52 22 55C18 60 18 70 25 80C35 88 65 88 75 80C82 70 82 60 78 55C82 52 85 48 85 40C85 32 80 28 75 30C72 20 62 15 50 15" stroke="#065f46" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Internal Neural Fissures -->
+  <path d="M25 40 Q 35 35 45 42" stroke="#059669" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+  <path d="M75 40 Q 65 35 55 42" stroke="#059669" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+  <path d="M30 65 Q 40 70 50 65" stroke="#059669" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+  <path d="M70 65 Q 60 70 50 65" stroke="#059669" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+
+  <!-- The Document (Sitting inside the brain) -->
+  <rect x="33" y="28" width="34" height="48" rx="4" fill="white" stroke="#064e3b" stroke-width="2.5"/>
+  <path d="M57 28H67V38L57 28Z" fill="#ecfdf5" stroke="#064e3b" stroke-width="2.5"/>
+
+  <!-- AI Brand Identity -->
+  <text x="38" y="49" font-family="sans-serif" font-size="13" font-weight="950" fill="#059669">AI</text>
+  <rect x="54" y="45" width="8" height="2" rx="1" fill="#059669" />
+  <rect x="38" y="56" width="24" height="1.5" rx="0.75" fill="#e5e7eb" />
+  <rect x="38" y="62" width="24" height="1.5" rx="0.75" fill="#e5e7eb" />
+  <rect x="38" y="68" width="14" height="1.5" rx="0.75" fill="#e5e7eb" />
+
+  <!-- Neural Connection Nodes -->
+  <circle cx="25" cy="30" r="2.5" fill="#10b981" opacity="0.6"/>
+  <circle cx="75" cy="30" r="2.5" fill="#10b981" opacity="0.6"/>
+</svg>

@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIRA | AI Resume Analyzer</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-green': '#10b981',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
+    <link href="./style.css" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Puter JS SDK -->
+    <script src="https://js.puter.com/v2/"></script>
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+
+    <!-- jsPDF for Reporting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body
+    class="min-h-screen font-sans text-gray-800 overflow-x-hidden selection:bg-emerald-500 selection:text-white bg-gray-50">
+
+    <!-- Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-300">
+        <div class="text-2xl font-bold tracking-tighter flex items-center gap-3 group cursor-pointer"
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <img src="favicon.svg" alt="AIRA Logo"
+                class="w-10 h-10 rounded-xl shadow-sm hover:scale-110 transition-transform duration-300">
+            <div class="flex flex-col leading-none">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-700">AIRA</span>
+                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mt-0.5 whitespace-nowrap">AI
+                    Resume Analyzer</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <!-- Auth Container -->
+            <div id="nav-auth-container">
+                <button id="nav-login-btn"
+                    class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all font-bold text-sm shadow-lg shadow-emerald-100 active:scale-95">
+                    Sign In
+                </button>
+            </div>
+
+            <!-- User Profile -->
+            <div id="nav-user-profile" class="hidden flex items-center gap-4 animate-fade-in">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Logged in as</p>
+                    <p id="username-display" class="font-bold text-gray-900 text-sm">User</p>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-green-600 shadow-md flex items-center justify-center text-white font-bold text-sm">
+                </div>
+                <button id="sign-out-btn"
+                    class="p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                    title="Sign Out">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Loading Overlay -->
+    <div id="loading-overlay"
+        class="fixed inset-0 bg-white/40 backdrop-blur-md z-[200] flex flex-col items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 shadow-2xl mb-6"></div>
+        <div id="loading-status"
+            class="text-emerald-700 font-bold text-sm tracking-widest uppercase mb-4 animate-pulse">
+            Establishing Connection...</div>
+        <button id="manual-sync-btn"
+            class="px-4 py-2 border border-emerald-500 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-50 transition-colors hidden">
+            Stuck? Manually Re-Sync
+        </button>
+    </div>
+
+    <main class="relative">
+        <!-- Floating Table of Contents (TOC) -->
+        <div id="floating-toc"
+            class="fixed right-8 top-1/2 -translate-y-1/2 z-[150] hidden lg:flex flex-col gap-4 p-4 glass-card rounded-3xl border-emerald-100/50">
+            <a href="#landing-view" class="toc-link group relative flex items-center justify-end gap-3" title="Home">
+                <span
+                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Home</span>
+                <div class="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-emerald-500 transition-colors"></div>
+            </a>
+            <a href="#features-section" class="toc-link group relative flex items-center justify-end gap-3"
+                title="Features">
+                <span
+                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Features</span>
+                <div class="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-emerald-500 transition-colors"></div>
+            </a>
+            <a href="#faq-section" class="toc-link group relative flex items-center justify-end gap-3" title="FAQ">
+                <span
+                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">FAQ</span>
+                <div class="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-emerald-500 transition-colors"></div>
+            </a>
+            <a href="#about-section" class="toc-link group relative flex items-center justify-end gap-3" title="About">
+                <span
+                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">About</span>
+                <div class="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-emerald-500 transition-colors"></div>
+            </a>
+        </div>
+
+        <!-- === LANDING PAGE === -->
+        <div id="landing-view"
+            class="min-h-screen flex flex-col items-center pt-32 px-6 pb-20 transition-opacity duration-500 relative overflow-hidden">
+
+            <div class="max-w-4xl mx-auto text-center relative z-10">
+                <div class="mb-12 animate-fade-in flex flex-col items-center">
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-bold mb-4 shadow-sm">
+                        <span class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        Join 10,000+ Professionals
+                    </div>
+                    <div
+                        class="flex flex-wrap justify-center gap-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                        <span class="flex items-center gap-2 hover:text-emerald-500 transition-colors">
+                            <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            AIRA Assistant Live
+                        </span>
+                        <span class="flex items-center gap-2 hover:text-emerald-500 transition-colors">
+                            <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            AIRA Reports Ready
+                        </span>
+                    </div>
+                </div>
+
+                <h1
+                    class="text-6xl md:text-[5.5rem] font-black mb-8 leading-[1.1] tracking-tight text-gray-900 animate-fade-in">
+                    The Smartest Way to <br />
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-700">Perfect
+                        Your Resume</span>
+                </h1>
+
+                <p class="text-xl text-gray-500 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in"
+                    style="animation-delay: 100ms;">
+                    AI-powered analysis that simulates real recruiter systems. Get instant tips to fix formatting, boost
+                    impact, and land more interviews.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-24 animate-fade-in"
+                    style="animation-delay: 200ms;">
+                    <button id="get-started-btn"
+                        class="px-10 py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-xl shadow-emerald-100 hover:shadow-2xl transition-all font-bold text-xl active:scale-95 flex items-center gap-3">
+                        Get Started for Free
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                    <div class="flex items-center gap-2 text-gray-400 font-medium">
+                        <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        No credit card required
+                    </div>
+                </div>
+
+                <!-- 3-Step Process Guide (Arrow Format) -->
+                <div class="w-full max-w-5xl mx-auto mb-32 animate-fade-in" style="animation-delay: 300ms;">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                        <!-- Step 1 -->
+                        <div
+                            class="glass-card p-10 rounded-[2.5rem] text-center relative z-10 group hover:scale-105 transition-transform duration-300">
+                            <div
+                                class="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-emerald-200">
+                                1</div>
+                            <h4 class="text-xl font-black text-gray-900 mb-3">Upload Resume</h4>
+                            <p class="text-gray-500 text-sm leading-relaxed">Simply sign in and drop your PDF or Text
+                                resume into the analyzer.</p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div
+                            class="glass-card p-10 rounded-[2.5rem] text-center relative z-10 group hover:scale-105 transition-transform duration-300">
+                            <!-- Right Arrow (Desktop) -->
+                            <div class="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 z-20">
+                                <svg class="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </div>
+                            <!-- Left Arrow (Desktop Overlayed) -->
+                            <div class="hidden md:block absolute -left-6 top-1/2 -translate-y-1/2 z-20">
+                                <svg class="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </div>
+
+                            <div
+                                class="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-emerald-200">
+                                2</div>
+                            <h4 class="text-xl font-black text-gray-900 mb-3">Paste Job Desc</h4>
+                            <p class="text-gray-500 text-sm leading-relaxed">Paste the job you're applying for to
+                                compare matching keywords.</p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div
+                            class="glass-card p-10 rounded-[2.5rem] text-center relative z-10 group hover:scale-105 transition-transform duration-300">
+                            <div
+                                class="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-emerald-200">
+                                3</div>
+                            <h4 class="text-xl font-black text-gray-900 mb-3">Get Analysis</h4>
+                            <p class="text-gray-500 text-sm leading-relaxed">Our AI generates a deep report on ATS
+                                compatibility and tips.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Section (Converted to Marquee) -->
+                <div class="pt-20 border-t border-gray-100 reveal-on-scroll overflow-hidden relative">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-12">Trusted by job
+                        seekers at</p>
+                    <div class="flex gap-24 whitespace-nowrap animate-marquee py-4 opacity-30 grayscale contrast-125">
+                        <!-- Set 1 -->
+                        <span class="text-2xl font-black italic tracking-tighter">GOOGLE</span>
+                        <span class="text-2xl font-black italic tracking-tighter">AMAZON</span>
+                        <span class="text-2xl font-black italic tracking-tighter">META</span>
+                        <span class="text-2xl font-black italic tracking-tighter">NETFLIX</span>
+                        <span class="text-2xl font-black italic tracking-tighter">APPLE</span>
+                        <!-- Set 2 -->
+                        <span class="text-2xl font-black italic tracking-tighter">GOOGLE</span>
+                        <span class="text-2xl font-black italic tracking-tighter">AMAZON</span>
+                        <span class="text-2xl font-black italic tracking-tighter">META</span>
+                        <span class="text-2xl font-black italic tracking-tighter">NETFLIX</span>
+                        <span class="text-2xl font-black italic tracking-tighter">APPLE</span>
+                    </div>
+                </div>
+
+                <!-- Impact Stat Block (Image 1) -->
+                <div class="mt-24 mb-24 reveal-cinematic">
+                    <h2 class="text-5xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight">
+                        You are <span class="text-emerald-600">80% more likely</span> to <br /> get hired if you use
+                        <span class="text-emerald-500">AIRA</span>
+                    </h2>
+                    <p class="text-xl text-gray-500 max-w-2xl mx-auto">
+                        We specialize in providing advanced AI tools tailored for job seekers.
+                    </p>
+                </div>
+
+                <!-- Features Section Header -->
+                <div class="mt-24 mb-24 text-center reveal-cinematic relative">
+                    <!-- Section Glow -->
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-50 rounded-full blur-[80px] opacity-40 -z-10">
+                    </div>
+
+                    <span
+                        class="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-black uppercase tracking-widest mb-6 border border-emerald-200">Features</span>
+                    <h2 class="text-5xl font-black text-gray-900 tracking-tight">
+                        AIRA will <br /><span class="text-emerald-500">provide</span>
+                    </h2>
+                </div>
+
+                <!-- Deep Feature Grid -->
+                <div id="features-section" class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left mb-24 scroll-mt-32">
+
+                    <!-- New Feature Card: AI Assistant -->
+                    <div class="glass-card p-12 rounded-[3.5rem] reveal-cinematic border-emerald-500/10">
+                        <div
+                            class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 text-emerald-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-3xl font-black text-gray-900 mb-2">Interactive <span
+                                class="text-emerald-500">AIRA Assistant</span></h3>
+                        <p class="text-gray-500 mb-8 leading-relaxed">Chat with our intelligent career coach to rewrite
+                            bullet points, target specific keywords, and refine your professional tone in real-time.</p>
+                    </div>
+
+                    <!-- New Feature Card: Downloadable Report -->
+                    <div class="glass-card p-12 rounded-[3.5rem] reveal-on-scroll border-emerald-500/10"
+                        style="transition-delay: 100ms;">
+                        <div
+                            class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 text-emerald-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-3xl font-black text-gray-900 mb-2">Professional <span
+                                class="text-emerald-500">AIRA Reports</span></h3>
+                        <p class="text-gray-500 mb-8 leading-relaxed">Download a structured, high-impact report of your
+                            analysis results to track your progress or share with mentors and hiring coaches.</p>
+                    </div>
+
+                    <!-- Feature 1 -->
+                    <div class="glass-card p-12 rounded-[3.5rem] reveal-on-scroll">
+                        <h3 class="text-3xl font-black text-gray-900 mb-2">Comprehensive Resume <span
+                                class="text-emerald-500">Analysis</span></h3>
+                        <p class="text-gray-500 mb-8 leading-relaxed">Gain a thorough evaluation of your resume's
+                            content, structure, and layout with our AI technology that identifies areas for improvement
+                            and suggests actionable steps.</p>
+                        <ul class="space-y-4 mb-10">
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Detailed Feedback
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Content Evaluation
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Structural Insights
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="glass-card p-12 rounded-[3.5rem] reveal-on-scroll" style="transition-delay: 100ms;">
+                        <h3 class="text-3xl font-black text-gray-900 mb-2">ATS <span
+                                class="text-emerald-500">Compatibility Check</span></h3>
+                        <p class="text-gray-500 mb-8 leading-relaxed">Ensure your resume passes through Applicant
+                            Tracking Systems (ATS) with higher success rates. Our AI analyzes your CV against common
+                            algorithms.</p>
+                        <ul class="space-y-4 mb-10">
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                ATS Optimization
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Keyword Enhancement
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Formatting Advice
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="glass-card p-12 rounded-[3.5rem] reveal-on-scroll">
+                        <h3 class="text-3xl font-black text-gray-900 mb-2">Personalization <span
+                                class="text-emerald-500">Tips</span></h3>
+                        <p class="text-gray-500 mb-8 leading-relaxed">Receive tailored advice to make your resume truly
+                            stand out. Our AI suggests changes that reflect your unique skills and experiences, aligning
+                            with job descriptions.</p>
+                        <ul class="space-y-4 mb-10">
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Custom Recommendations
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Skill Highlighting
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Impact Analysis
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="glass-card p-12 rounded-[3.5rem] reveal-on-scroll" style="transition-delay: 100ms;">
+                        <h3 class="text-3xl font-black text-gray-900 mb-2">Error <span
+                                class="text-emerald-500">Detection</span></h3>
+                        <p class="text-gray-500 mb-8 leading-relaxed">Our AI scans for grammatical mistakes, typos, and
+                            inconsistencies in your resume, ensuring it is polished and error-free. Save time on
+                            proofreading.</p>
+                        <ul class="space-y-4 mb-10">
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Grammar & Style Check
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Action Verb Suggestions
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-bold">
+                                Redundancy Filter
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Testimonial Stat (Image 4) -->
+                <div class="mt-24 mb-16 text-center reveal-on-scroll relative">
+                    <!-- Modern Gradient Glow -->
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-64 bg-emerald-50 rounded-full blur-[120px] opacity-60 -z-10">
+                    </div>
+
+                    <div class="relative z-10 flex flex-col items-center">
+                        <img src="favicon.svg" alt="AIRA"
+                            class="w-16 h-16 mb-8 opacity-20 grayscale hover:opacity-100 transition-opacity">
+                        <span
+                            class="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-black uppercase tracking-widest mb-6">Testimonials</span>
+                        <h2 class="text-6xl font-black text-gray-900 tracking-tighter leading-[1.1]">
+                            <span class="text-emerald-500">1,000,000+</span><br />
+                            experienced job seekers<br />
+                            <span class="text-gray-400">are using AIRA</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonials Grid (Image 5) -->
+            <div class="w-full max-w-6xl mx-auto px-6 lg:pr-32">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24 text-left">
+
+                    <!-- Column 1 -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center font-bold text-emerald-600">
+                                    A</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Athul</h4>
+                                    <p class="text-xs text-gray-400 mt-1">Recent College Graduate</p>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                <mark class="bg-yellow-100 text-gray-900 px-1 rounded">AIRA gave me the edge I
+                                    needed.</mark>
+                                The analysis highlighted exactly where my resume was lacking, helping me land my first
+                                role in a competitive market much faster than expected.
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Dec 17, 2024
+                                </p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center font-bold text-emerald-600">
+                                    L</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Leena</h4>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                <mark class="bg-yellow-100 text-gray-900 px-1 rounded">This tool is incredibly
+                                    efficient.</mark> I updated my resume based on the feedback and started getting
+                                interview calls almost immediately. Highly professional results.
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Jan 4, 2025</p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2 -->
+                    <div class="space-y-6 pt-10">
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-600">
+                                    K</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Kalyani</h4>
+                                    <p class="text-xs text-gray-400 mt-1">Mid-Career Professional</p>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                The deep analysis provided by <mark
+                                    class="bg-yellow-100 text-gray-900 px-1 rounded">AIRA</mark> was insightful. It
+                                identified subtle gaps in my experience presentation that I hadn't noticed, allowing me
+                                to <mark class="bg-yellow-100 text-gray-900 px-1 rounded">refine my profile</mark> for
+                                senior-level roles.
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Jan 10, 2025
+                                </p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center font-bold text-emerald-600">
+                                    M</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Maryam</h4>
+                                    <p class="text-xs text-gray-400 mt-1">Career Changer</p>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                Changing industries was a challenge, but <mark
+                                    class="bg-yellow-100 text-gray-900 px-1 rounded">AIRA</mark> helped me translate my
+                                skills into a new language. The feedback made my <mark
+                                    class="bg-yellow-100 text-gray-900 px-1 rounded">transition significantly more
+                                    straightforward.</mark>
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Feb 2, 2025</p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3 -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center font-bold text-purple-600">
+                                    Y</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Yusuf</h4>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                Very impressive tool. The <mark
+                                    class="bg-yellow-100 text-gray-900 px-1 rounded">feedback is
+                                    precise
+                                    and actionable.</mark>
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Nov 24, 2024
+                                </p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center font-bold text-emerald-600">
+                                    N</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Nafsi</h4>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                I was struggling with how to frame my accomplishments. <mark
+                                    class="bg-yellow-100 text-gray-900 px-1 rounded">AIRA's assistant</mark> provided
+                                clear suggestions that made a massive difference in how my applications were received.
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">May 24, 2024
+                                </p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 4 -->
+                    <div class="space-y-6 pt-10">
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center font-bold text-pink-600">
+                                    J</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Jumail</h4>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                <mark class="bg-yellow-100 text-gray-900 px-1 rounded">AIRA is a solid
+                                    investment</mark> for any job seeker. The report details are comprehensive and easy
+                                to follow. It definitely improved my application quality.
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Mar 22, 2024
+                                </p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                        <div class="glass-card p-8 rounded-[2.5rem] reveal-on-scroll border-emerald-500/10">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center font-bold text-emerald-600">
+                                    Z</div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 leading-none">Zubair</h4>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                            <p class="text-gray-600 text-[15px] leading-relaxed italic">
+                                Prepping with <mark class="bg-yellow-100 text-gray-900 px-1 rounded">AIRA</mark> was a
+                                turning point. It provided the clarity I needed to optimize my profile for high-paying
+                                roles, ultimately helping me secure a <mark
+                                    class="bg-yellow-100 text-gray-900 px-1 rounded">fantastic new position.</mark>
+                            </p>
+                            <div class="flex justify-between items-end mt-4">
+                                <p class="text-[10px] text-gray-300 uppercase font-bold tracking-widest">Jul 22, 2024
+                                </p>
+                                <img src="favicon.svg" alt="AIRA Verified" class="w-5 h-5 opacity-10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div id="faq-section" class="mt-24 mb-24 max-w-4xl mx-auto reveal-on-scroll scroll-mt-32">
+                <h2 class="text-5xl font-black text-gray-900 mb-16 text-center tracking-tight">Frequently Asked
+                    <span class="text-emerald-500">Questions</span>
+                </h2>
+                <div class="space-y-4">
+                    <!-- FAQ Item 1 -->
+                    <div
+                        class="faq-item glass-card rounded-3xl border border-gray-100 overflow-hidden transition-all duration-300">
+                        <button class="faq-trigger w-full px-8 py-8 flex items-center justify-between text-left group">
+                            <h3 class="text-xl font-bold text-gray-900">How accurate is the AI analysis?</h3>
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                                <svg class="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-transform duration-300"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="faq-content h-0 overflow-hidden transition-all duration-300 px-8">
+                            <p class="pb-8 text-gray-500 leading-relaxed">Our AI is trained on millions of
+                                successful resumes and latest ATS algorithms, providing accuracy that rivals
+                                professional human reviewers.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 2 -->
+                    <div
+                        class="faq-item glass-card rounded-3xl border border-gray-100 overflow-hidden transition-all duration-300">
+                        <button class="faq-trigger w-full px-8 py-8 flex items-center justify-between text-left group">
+                            <h3 class="text-xl font-bold text-gray-900">Is my data secure?</h3>
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                                <svg class="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-transform duration-300"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="faq-content h-0 overflow-hidden transition-all duration-300 px-8">
+                            <p class="pb-8 text-gray-500 leading-relaxed">Yes, all data is encrypted and managed
+                                through Puter's secure cloud infrastructure. Your resumes are private to you.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 3 -->
+                    <div
+                        class="faq-item glass-card rounded-3xl border border-gray-100 overflow-hidden transition-all duration-300">
+                        <button class="faq-trigger w-full px-8 py-8 flex items-center justify-between text-left group">
+                            <h3 class="text-xl font-bold text-gray-900">Do you support international formats?</h3>
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                                <svg class="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-transform duration-300"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="faq-content h-0 overflow-hidden transition-all duration-300 px-8">
+                            <p class="pb-8 text-gray-500 leading-relaxed">Absolutely! We support standard formats
+                                used worldwide, including CVs and resumes for various industries globally.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- About Section -->
+            <div id="about-section" class="mt-24 mb-24 max-w-4xl mx-auto reveal-on-scroll scroll-mt-32">
+                <div class="text-center mb-16">
+                    <span
+                        class="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-black uppercase tracking-widest mb-6">Our
+                        Mission</span>
+                    <h2 class="text-5xl font-black text-gray-900 tracking-tight">Built by Experts, <br /> Driven by
+                        <span class="text-emerald-500">Intelligence</span>
+                    </h2>
+                </div>
+                <div class="glass-card p-12 rounded-[3.5rem] bg-white shadow-xl text-center">
+                    <p class="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+                        <span class="font-bold text-emerald-600">AIRA</span> was born from a simple realization: the
+                        job market is skewed against
+                        high-potential candidates who lack the "right words."
+                        We combined cutting-edge LLMs with deep recruitment heuristics to level the playing field.
+                        Our tool doesn't just scan; it understands, refines, and empowers.
+                    </p>
+                    <div class="mt-12 flex justify-center gap-10">
+                        <div class="flex flex-col items-center">
+                            <span class="text-3xl font-black text-emerald-600">98%</span>
+                            <span
+                                class="text-xs font-bold text-gray-400 border-t border-gray-100 pt-2 uppercase tracking-widest">Accuracy</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-3xl font-black text-emerald-600">500k+</span>
+                            <span
+                                class="text-xs font-bold text-gray-400 border-t border-gray-100 pt-2 uppercase tracking-widest">Analyzed</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-3xl font-black text-emerald-600">24/7</span>
+                            <span
+                                class="text-xs font-bold text-gray-400 border-t border-gray-100 pt-2 uppercase tracking-widest">Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-emerald-50 rounded-full blur-[100px] -z-10 animate-pulse">
+            </div>
+            <div class="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-green-50 rounded-full blur-[100px] -z-10">
+            </div>
+        </div> <!-- Close landing-view correctly -->
+        </div>
+
+        <!-- === DASHBOARD === -->
+        <div id="dashboard-view" class="w-full min-h-screen pt-32 px-6 pb-24 flex flex-col"
+            style="display: none; opacity: 1;">
+            <div class="max-w-7xl mx-auto w-full">
+
+                <!-- Header -->
+                <div class="mb-16">
+                    <h2 class="text-4xl font-black text-gray-900 mb-3 tracking-tight">Analysis Dashboard</h2>
+                    <p class="text-gray-500 text-lg">Detailed breakdown of your resume's performance.</p>
+                </div>
+
+                <!-- Input Area (Collapsible or compact) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 mb-16">
+                    <div class="lg:col-span-4">
+                        <div id="dashboard-drop-zone"
+                            class="glass-card rounded-[2rem] p-8 border-2 border-dashed border-emerald-100 hover:border-emerald-500 transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-4 group h-[240px] bg-white">
+                            <input type="file" id="dashboard-file-input" class="hidden" accept=".pdf,.txt">
+                            <div
+                                class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform mb-2 border border-emerald-100">
+                                <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
+                                    Swap
+                                    Resume</p>
+                                <p class="text-xs text-gray-400 mt-1">PDF or TXT</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-8">
+                        <div class="glass-card rounded-[2rem] p-1 bg-white h-[240px] shadow-sm">
+                            <textarea id="job-desc"
+                                class="w-full h-full p-8 bg-transparent text-gray-800 placeholder-gray-400 border-none focus:ring-0 resize-none text-base leading-relaxed"
+                                placeholder="Paste the Job Description here to analyze match..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyze Button -->
+                <div class="flex justify-center mb-20">
+                    <button id="analyze-btn"
+                        class="px-16 py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-xl shadow-emerald-100 hover:shadow-2xl transition-all font-bold text-xl active:scale-95 flex items-center gap-4">
+                        <span>Run Full Analysis</span>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Results Area (Split View) -->
+                <div id="results-area"
+                                        class="grid grid-cols-1 lg:grid-cols-12 gap-10 opacity-0 pointer-events-none transition-all duration-700 transform translate-y-10">
+                                <!-- Modern Resume Builder Section (hidden by default, shown after analysis) -->
+                                <section id="builder-view" class="hidden max-w-5xl mx-auto mt-16 mb-24 p-0 rounded-3xl shadow-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50 to-white">
+                                    <div class="flex flex-col md:flex-row">
+                                        <!-- Template Carousel -->
+                                        <div class="md:w-1/3 p-8 flex flex-col items-center justify-center bg-white rounded-l-3xl border-r border-emerald-100">
+                                            <h3 class="text-2xl font-black mb-6 text-gray-900 text-center">Choose Your Style</h3>
+                                            <div id="template-carousel" class="w-full flex flex-col items-center">
+                                                <div class="carousel-templates flex gap-4 mb-4">
+                                                    <button class="template-thumb border-2 border-emerald-500 rounded-xl overflow-hidden focus:ring-2 focus:ring-emerald-400" data-template="modern">
+                                                        <img src="https://assets.livecareer.co.uk/blobimages/lcintl-lp/luk/images/template-modern.png" alt="Modern Template" class="w-20 h-28 object-cover">
+                                                    </button>
+                                                    <button class="template-thumb border-2 border-transparent rounded-xl overflow-hidden focus:ring-2 focus:ring-emerald-400" data-template="classic">
+                                                        <img src="https://assets.livecareer.co.uk/blobimages/lcintl-lp/luk/images/template-classic.png" alt="Classic Template" class="w-20 h-28 object-cover">
+                                                    </button>
+                                                    <button class="template-thumb border-2 border-transparent rounded-xl overflow-hidden focus:ring-2 focus:ring-emerald-400" data-template="minimal">
+                                                        <img src="https://assets.livecareer.co.uk/blobimages/lcintl-lp/luk/images/template-minimal.png" alt="Minimal Template" class="w-20 h-28 object-cover">
+                                                    </button>
+                                                </div>
+                                                <div class="flex gap-2 justify-center">
+                                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                    <span class="w-2 h-2 rounded-full bg-gray-200"></span>
+                                                    <span class="w-2 h-2 rounded-full bg-gray-200"></span>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-gray-400 mt-6 text-center">Preview and select a template to personalize your resume style.</p>
+                                        </div>
+                                        <!-- Resume Preview & CTA -->
+                                        <div class="md:w-2/3 p-10 flex flex-col items-center justify-center">
+                                            <h2 class="text-4xl font-black mb-4 text-gray-900 text-center">Your AI-Built Resume</h2>
+                                            <div id="preview-area" class="w-full max-w-2xl min-h-[420px] border-2 border-emerald-100 rounded-xl bg-white shadow-lg p-8 mb-6 transition-all"></div>
+                                            <button id="download-pdf-btn" class="w-full max-w-xs py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-100 transition-all active:scale-95 flex items-center justify-center gap-3 mb-2">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                                Download PDF
+                                            </button>
+                                            <p class="text-xs text-gray-400 text-center">AI will auto-generate your resume after analysis. You can change the template anytime.</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                    <!-- Sidebar (Sticky) -->
+                    <div class="lg:col-span-4 space-y-8">
+                        <div
+                            class="glass-card p-10 rounded-[2.5rem] sticky top-32 bg-white shadow-xl shadow-gray-100 border-none">
+                            <h3 class="text-xl font-bold text-gray-900 mb-8">Overall Performance</h3>
+
+                            <!-- Gauge -->
+                            <div class="relative w-full aspect-square flex items-center justify-center mb-10">
+                                <svg class="w-full h-full absolute transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#f3f4f6" stroke-width="8" />
+                                    <circle id="gauge-progress" cx="50" cy="50" r="40" fill="none" stroke="#10b981"
+                                        stroke-width="8" stroke-linecap="round" stroke-dasharray="251.2"
+                                        stroke-dashoffset="251.2" class="transition-all duration-1000 ease-out" />
+                                </svg>
+                                <div class="text-center z-10">
+                                    <div class="text-6xl font-black text-gray-900 tracking-tight" id="overall-score">0
+                                    </div>
+                                    <div class="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">
+                                        Total
+                                        Score</div>
+                                </div>
+                            </div>
+
+                            <!-- Export PDF Button -->
+                            <button id="export-pdf-btn"
+                                class="w-full py-4 mt-4 mb-8 bg-gray-900 border border-gray-800 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-95 group">
+                                <svg class="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                Export PDF Report
+                            </button>
+
+                            <!-- Category Summary Spikes -->
+                            <div id="category-summary" class="space-y-4">
+                                <!-- JS Injected summary lines -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Findings Area -->
+                    <div class="lg:col-span-8">
+                        <div class="space-y-8" id="feedback-list">
+                            <!-- Items injected via JS -->
+                        </div>
+
+                        <!-- Chat Assistant Panel -->
+                        <div id="chat-assistant"
+                            class="glass-card mt-12 mb-12 flex flex-col rounded-[2.5rem] bg-white shadow-2xl shadow-gray-100 border-none overflow-hidden transition-all duration-500 opacity-0 pointer-events-none translate-y-10">
+                            <div
+                                class="p-8 border-b border-gray-100 flex items-center justify-between bg-emerald-50/30">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-black text-gray-900 leading-tight">AIRA Assistant</h3>
+                                        <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+                                            Refining your resume</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live
+                                        Analysis Context</span>
+                                </div>
+                            </div>
+
+                            <!-- Chat Messages Area -->
+                            <div id="chat-messages" class="flex-1 p-8 space-y-6 max-h-[500px] overflow-y-auto">
+                                <div class="flex justify-start">
+                                    <div
+                                        class="max-w-[80%] p-6 bg-gray-50 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm animate-fade-in">
+                                        <p class="text-[15px] text-gray-700 leading-relaxed">
+                                            Hello! I've analyzed your resume. I can help you rewrite sections, target
+                                            specific keywords, or improve the overall tone.
+                                            <br><br>
+                                            <strong>What would you like to refine first?</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chat Input Area -->
+                            <div class="p-6 bg-white border-t border-gray-100">
+                                <div class="relative flex items-center gap-4">
+                                    <input type="text" id="chat-input"
+                                        class="flex-1 py-4 px-6 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm transition-all shadow-inner"
+                                        placeholder="Ask me to rewrite something...">
+                                    <button id="chat-send-btn"
+                                        class="w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-100 transition-all active:scale-95 flex items-center justify-center">
+                                        <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="bg-gray-900 pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
+                <!-- Branding & About -->
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-3 mb-8">
+                        <img src="favicon.svg" alt="AIRA Logo"
+                            class="w-12 h-12 rounded-xl shadow-lg shadow-emerald-500/10">
+                        <div class="flex flex-col leading-none">
+                            <span class="text-2xl font-black text-white tracking-tighter italic">AIRA</span>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-500 mt-1">AI
+                                Resume Analyzer</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-lg leading-relaxed mb-10 max-w-md">
+                        Empowering job seekers with state-of-the-art AI technology to bypass ATS gatekeepers and land
+                        their dream interviews.
+                    </p>
+                    <!-- Social Icons -->
+                    <div class="flex gap-5">
+                        <a href="#"
+                            class="w-12 h-12 bg-gray-800 rounded-2xl flex items-center justify-center text-white hover:bg-emerald-600 hover:-translate-y-1 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z">
+                                </path>
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-12 h-12 bg-gray-800 rounded-2xl flex items-center justify-center text-white hover:bg-pink-600 hover:-translate-y-1 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01M7.5 21h9a4.5 4.5 0 004.5-4.5v-9a4.5 4.5 0 00-4.5-4.5h-9A4.5 4.5 0 003 7.5v9A4.5 4.5 0 007.5 21z">
+                                </path>
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-12 h-12 bg-gray-800 rounded-2xl flex items-center justify-center text-white hover:bg-blue-600 hover:-translate-y-1 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <!-- Links Grid -->
+                <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-10">
+                    <div class="space-y-6">
+                        <h4 class="text-white font-bold uppercase tracking-widest text-xs">Product</h4>
+                        <ul class="space-y-4 text-gray-400 text-sm">
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">Analyzer</a></li>
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">AI Chat</a></li>
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">PDF Reports</a></li>
+                        </ul>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-white font-bold uppercase tracking-widest text-xs">Company</h4>
+                        <ul class="space-y-4 text-gray-400 text-sm">
+                            <li><a href="#about-section" class="hover:text-emerald-500 transition-colors">About Us</a>
+                            </li>
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">Mission</a></li>
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-white font-bold uppercase tracking-widest text-xs">Legal</h4>
+                        <ul class="space-y-4 text-gray-400 text-sm">
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">Privacy</a></li>
+                            <li><a href="#" class="hover:text-emerald-500 transition-colors">Terms</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Bottom Bar -->
+            <div
+                class="pt-12 border-t border-gray-800 flex flex-col md:row items-center justify-between gap-6 text-gray-500 text-xs font-bold uppercase tracking-widest">
+                <p>© 2026 AIRA - AI Resume Analyzer. All rights reserved.</p>
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                    Powered by Puter AI
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Analysis Loading Overlay -->
+    <div id="analysis-overlay"
+        class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-3xl flex flex-col items-center justify-center hidden">
+        <div class="w-full max-w-lg p-12 relative glass-card rounded-3xl border border-emerald-100 shadow-xl bg-white">
+            <div class="scan-line top-0 absolute w-full opacity-30 bg-emerald-500"></div>
+
+            <h2 class="text-4xl font-bold text-center mb-12 text-gray-900">Processing...</h2>
+
+            <div class="flex flex-col gap-8">
+                <div class="processing-step active flex items-center gap-6 text-emerald-600">
+                    <div
+                        class="w-8 h-8 rounded-full border-2 border-emerald-500 flex items-center justify-center animate-pulse shadow-sm">
+                        ✓</div>
+                    <span class="text-xl font-medium text-gray-800">Scanning Document</span>
+                </div>
+                <div class="processing-step flex items-center gap-6 text-gray-400">
+                    <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center">✓</div>
+                    <span class="text-xl font-medium">Analyzing Content</span>
+                </div>
+                <div class="processing-step flex items-center gap-6 text-gray-400">
+                    <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center">✓</div>
+                    <span class="text-xl font-medium">Generating Feedback</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/tilt.js"></script>
+    <script type="module">
+        import parser from './js/parser.js';
+        import validator from './js/validator.js';
+        import auth from './js/auth.js';
+        import logic from './js/logic.js';
+        import animations from './js/animations.js';
+
+        // Initialize
+        window.parser = parser;
+        window.validator = validator;
+        window.auth = auth;
+        window.logic = logic;
+        window.animations = animations;
+
+        // Start auth
+        auth.init();
+
+        // Initialize tilt effect
+        if (window.VanillaTilt) {
+            VanillaTilt.init(document.querySelectorAll(".tilt-card"), {
+                max: 5,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.2,
+            });
+        }
+
+        // Initialize animations
+        animations.observeElements();
+    </script>
+
+    <!-- Fail-safe: Remove loading overlay after 3s -->
+    <script>
+        setTimeout(() => {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.classList.add('hidden');
+        }, 3000);
+    </script>
+
+</body>
+
+</html>

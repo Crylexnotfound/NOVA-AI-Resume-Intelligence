@@ -1,0 +1,1861 @@
+/* ============================================
+   NOVA - AI Resume Intelligence
+   Dark Theme UI
+   ============================================ */
+
+/* ---- CSS VARIABLES ---- */
+/* All colors, gradients, spacing, and typography defined as custom properties
+   for easy theming and consistent usage throughout the stylesheet */
+:root {
+    /* Background layers — from darkest (page bg) to lightest (elevated cards) */
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-card: #16161f;
+    --bg-card-hover: #1c1c28;
+    --bg-elevated: #1e1e2a;
+
+    /* Text hierarchy — primary for headings, secondary for body, dim for labels */
+    --text-primary: #f0f0f5;
+    --text-secondary: #9898a8;
+    --text-dim: #5a5a6e;
+    --text-muted: #3a3a4e;
+
+    /* Brand accent colors */
+    --accent-violet: #8B5CF6;
+    --accent-cyan: #06B6D4;
+    --accent-pink: #EC4899;
+    --accent-green: #10B981;
+    --accent-orange: #F59E0B;
+    --accent-red: #EF4444;
+
+    /* Gradient presets */
+    --gradient-main: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+    --gradient-warm: linear-gradient(135deg, #EC4899 0%, #F59E0B 100%);
+    --gradient-cool: linear-gradient(135deg, #06B6D4 0%, #10B981 100%);
+
+    /* Border styles — subtle for cards, light for inputs, accent for focus states */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-light: rgba(255, 255, 255, 0.1);
+    --border-accent: rgba(139, 92, 246, 0.3);
+
+    /* Glow effects for hover states */
+    --glow-violet: 0 0 40px rgba(139, 92, 246, 0.15);
+    --glow-cyan: 0 0 40px rgba(6, 182, 212, 0.15);
+
+    /* Border radius scale */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* Typography */
+    --font-sans: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    /* Used for numbers and code */
+
+    /* Custom easing curves for premium feel */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---- RESET ---- */
+/* Box-sizing border-box on everything — prevents padding from expanding elements */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    /* Crisp text on macOS/iOS */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll from animations */
+    cursor: none;
+    /* Hide default cursor — replaced by custom cursor */
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Inherit font and hide default cursor on interactive elements */
+button {
+    font-family: inherit;
+    cursor: none;
+    border: none;
+    background: none;
+    color: inherit;
+}
+
+input,
+textarea {
+    font-family: inherit;
+    cursor: none;
+}
+
+/* Violet text selection highlight */
+::selection {
+    background: rgba(139, 92, 246, 0.4);
+    color: #fff;
+}
+
+/* ---- UTILITY ---- */
+/* Used extensively to show/hide sections — !important ensures it overrides other display values */
+.hidden {
+    display: none !important;
+}
+
+/* ---- CUSTOM CURSOR ---- */
+/* Two-part cursor: a small dot that follows instantly + a ring that lags behind */
+
+/* The dot — 8px white circle, mix-blend-mode:difference inverts colors under it */
+.custom-cursor {
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    /* Never intercept mouse events */
+    z-index: 99999;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+    mix-blend-mode: difference;
+    /* Creates an inversion effect on hover */
+}
+
+/* The ring — 36px circle that follows the dot with a lag (animated by JS) */
+.cursor-follower {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 99998;
+    transition: transform 0.15s var(--ease-out-expo), width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+}
+
+/* When hovering over links or buttons: ring expands and turns violet */
+body:has(a:hover) .cursor-follower,
+body:has(button:hover) .cursor-follower {
+    width: 50px;
+    height: 50px;
+    border-color: var(--accent-violet);
+}
+
+/* Dot scales up on hover for additional feedback */
+body:has(a:hover) .custom-cursor,
+body:has(button:hover) .custom-cursor {
+    transform: scale(2);
+}
+
+/* ---- NOISE OVERLAY ---- */
+/* SVG fractal noise rendered as a background image — adds film grain texture */
+/* opacity: 0.03 keeps it very subtle — just enough to break up flat dark areas */
+.noise-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9997;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+}
+
+/* ---- GRID BACKGROUND ---- */
+/* Subtle 60px grid lines using two overlapping linear-gradients */
+/* z-index: -1 keeps it behind all content */
+.grid-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+
+/* ---- LOADING SCREEN ---- */
+/* Full-viewport overlay shown on page load, faded out after app.init() completes */
+
+.loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    /* Above everything */
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+/* JS adds this class to fade out the loading screen */
+.loading-screen.hide {
+    opacity: 0;
+    visibility: hidden;
+    /* Removes from tab order and pointer events */
+}
+
+.loader-content {
+    text-align: center;
+}
+
+/* Logo floats up and down continuously while loading */
+.loader-logo {
+    margin-bottom: 32px;
+    animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Progress bar container */
+.loader-bar {
+    width: 200px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto 16px;
+}
+
+/* The fill — animated from 0% to 100% width over 2 seconds via CSS keyframe */
+/* This is purely cosmetic — it doesn't reflect actual loading progress */
+.loader-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--gradient-main);
+    border-radius: 10px;
+    animation: loaderFill 2s var(--ease-out-expo) forwards;
+}
+
+@keyframes loaderFill {
+    to {
+        width: 100%;
+    }
+}
+
+.loader-text {
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* ---- NAVBAR ---- */
+/* Fixed top bar with glassmorphism effect — backdrop-filter blurs content behind it */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0 32px;
+    background: rgba(10, 10, 15, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all 0.3s ease;
+}
+
+/* JS adds this class when scrollY > 50 — darkens background for readability */
+.navbar.scrolled {
+    background: rgba(10, 10, 15, 0.95);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.nav-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-link {
+    position: relative;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+    border-radius: var(--radius-sm);
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Animated underline — scales from 0 to 1 on hover using scaleX transform */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: var(--gradient-main);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.3s var(--ease-out-expo);
+}
+
+.nav-link:hover::after {
+    transform: scaleX(1);
+}
+
+/* "Get Started" gradient button */
+.btn-glow {
+    position: relative;
+    padding: 10px 24px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-main);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-glow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+}
+
+.btn-glow-text {
+    position: relative;
+    z-index: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* User pill — shown when authenticated */
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px 6px 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.user-pill:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+}
+
+/* Avatar circle with gradient background */
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gradient-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* User dropdown — slides down from navbar */
+.user-dropdown {
+    position: fixed;
+    top: 72px;
+    right: 32px;
+    width: 260px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    animation: dropIn 0.2s var(--ease-out-expo);
+    overflow: hidden;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.dropdown-item.danger {
+    color: var(--accent-red);
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Mobile responsive — hide desktop links, show hamburger */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .navbar {
+        padding: 0 16px;
+    }
+
+    .nav-inner {
+        height: 60px;
+    }
+}
+
+/* ---- HERO SECTION ---- */
+/* Two-column grid: left = text, right = card stack visual */
+
+.hero-section {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+    padding: 120px 60px 80px;
+    /* Top padding accounts for fixed navbar */
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Three.js canvas — positioned absolutely, blurred and semi-transparent */
+.hero-orb {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    max-width: 900px;
+    max-height: 900px;
+    filter: blur(40px) saturate(120%);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    /* Adds light rather than covering content */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* "AI-Powered Resume Intelligence" badge */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px 8px 12px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent-violet);
+    margin-bottom: 32px;
+}
+
+/* Pulsing dot inside the badge */
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-violet);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+}
+
+/* Responsive headline — clamp() scales between 40px and 72px */
+.hero-title {
+    font-size: clamp(40px, 5.5vw, 72px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+}
+
+.hero-line {
+    display: block;
+}
+
+/* Gradient text — uses background-clip trick for violet-cyan gradient on text */
+.gradient-text {
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Hero card stack — 3 overlapping cards with rotation and scale */
+.hero-card-stack {
+    position: relative;
+    width: 340px;
+    height: 440px;
+}
+
+.hero-card {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+}
+
+/* Back card — most rotated, most transparent */
+.hero-card-back {
+    background: var(--bg-card);
+    transform: rotate(-6deg) translateX(-20px) scale(0.92);
+    opacity: 0.5;
+}
+
+/* Mid card — slightly rotated */
+.hero-card-mid {
+    background: var(--bg-card);
+    transform: rotate(-3deg) translateX(-10px) scale(0.96);
+    opacity: 0.7;
+}
+
+/* Front card — full opacity, floating animation */
+.hero-card-front {
+    background: var(--bg-card);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: cardFloat 4s ease-in-out infinite;
+}
+
+@keyframes cardFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+}
+
+/* Responsive: stack vertically on tablet/mobile */
+@media (max-width: 1024px) {
+    .hero-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 100px 24px 60px;
+        gap: 40px;
+    }
+
+    .hero-visual {
+        order: -1;
+    }
+
+    /* Show card above text on mobile */
+    .hero-card-stack {
+        width: 280px;
+        height: 360px;
+    }
+}
+
+/* ---- FEATURES ---- */
+/* 3-column grid of cards; first card spans all 3 columns */
+
+.features-section {
+    padding: 120px 0;
+    position: relative;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    transition: all 0.4s var(--ease-out-expo);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Top border accent line — scales in on hover */
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-main);
+    transform: scaleX(0);
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.feature-card:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+    transform: translateY(-4px);
+}
+
+.feature-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Large card — spans full width, two-column layout */
+.feature-card.feature-large {
+    grid-column: span 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    padding: 48px;
+}
+
+/* Animated radar rings — pure CSS pulse animation */
+.radar-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.ring-1 {
+    width: 200px;
+    height: 200px;
+    animation: radarPulse 3s ease-in-out infinite;
+}
+
+.ring-2 {
+    width: 140px;
+    height: 140px;
+    animation: radarPulse 3s ease-in-out infinite 0.5s;
+}
+
+.ring-3 {
+    width: 80px;
+    height: 80px;
+    animation: radarPulse 3s ease-in-out infinite 1s;
+}
+
+@keyframes radarPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+/* Blinking dots on the radar */
+.radar-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-violet);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+@keyframes dotBlink {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* ---- PROCESS ---- */
+/* Vertical list of steps — each slides right on hover */
+
+.process-section {
+    padding: 120px 0;
+    background: var(--bg-secondary);
+}
+
+.process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.process-step {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    transition: all 0.4s var(--ease-out-expo);
+}
+
+/* Slides right on hover for a dynamic feel */
+.process-step:hover {
+    border-color: var(--border-accent);
+    transform: translateX(8px);
+}
+
+/* Large gradient step number */
+.step-number {
+    font-size: 48px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+/* ---- CTA ---- */
+.cta-section {
+    padding: 80px 0 120px;
+}
+
+.cta-card {
+    position: relative;
+    padding: 80px 60px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 32px;
+    text-align: center;
+    overflow: hidden;
+}
+
+/* Radial glow behind the card — purely decorative */
+.cta-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* ---- DASHBOARD ---- */
+.dashboard-section {
+    padding: 100px 0 60px;
+    min-height: 100vh;
+}
+
+.dash-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+/* Small outline button used throughout the dashboard */
+.btn-outline-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-sm:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-violet);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+/* ---- UPLOAD ZONE ---- */
+/* Dashed border drop target — border turns violet on hover/drag-over */
+.upload-zone-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px 40px;
+    background: var(--bg-card);
+    border: 2px dashed var(--border-light);
+    border-radius: var(--radius-xl);
+    text-align: center;
+    transition: all 0.4s var(--ease-out-expo);
+    cursor: pointer;
+}
+
+/* Hover and drag-over state — JS adds drag-over class on dragover event */
+.upload-zone-inner:hover,
+.upload-zone-inner.drag-over {
+    border-color: var(--accent-violet);
+    background: rgba(139, 92, 246, 0.03);
+}
+
+/* ---- FILE PREVIEW ---- */
+/* Shown after a valid file is selected — displays file name, size, and remove button */
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+}
+
+/* Remove button — red circle in the top-right of the file info bar */
+.file-remove {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.file-remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* ---- JD TEXTAREA ---- */
+.jd-input-wrap textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.jd-input-wrap textarea:focus {
+    outline: none;
+    border-color: var(--accent-violet);
+    /* Violet focus ring */
+}
+
+/* ---- ANALYSIS MODE CARDS ---- */
+/* 4-column grid of mode selector cards */
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.mode-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 20px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Active mode card — violet border and tinted background */
+.mode-card.active {
+    border-color: var(--accent-violet);
+    background: rgba(139, 92, 246, 0.08);
+}
+
+.mode-card.active i {
+    color: var(--accent-violet);
+}
+
+/* ---- ANALYZE BUTTON ---- */
+/* Full-width gradient button with shimmer effect on hover */
+.btn-analyze {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 18px 32px;
+    background: var(--gradient-main);
+    border-radius: var(--radius-lg);
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-analyze:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(139, 92, 246, 0.35);
+}
+
+/* Shimmer overlay — fades in on hover */
+.btn-analyze-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-analyze:hover .btn-analyze-bg {
+    opacity: 1;
+}
+
+/* ---- ANALYSIS OVERLAY ---- */
+/* Full-screen modal shown during AI processing — covers everything */
+
+.analysis-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    /* Above everything including navbar */
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.analysis-modal {
+    text-align: center;
+    padding: 48px;
+}
+
+/* Three concentric rings that pulse outward — staggered animation delays */
+.pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.pulse-ring.ring-1 {
+    animation: pulseRing 2s ease-in-out infinite;
+}
+
+.pulse-ring.ring-2 {
+    animation: pulseRing 2s ease-in-out infinite 0.5s;
+}
+
+.pulse-ring.ring-3 {
+    animation: pulseRing 2s ease-in-out infinite 1s;
+}
+
+/* Rings scale from 0.8x to 2x and fade out */
+@keyframes pulseRing {
+    0% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Progress bar — width updated by Visuals.updateAnalysisStep() */
+.analysis-progress-bar {
+    height: 100%;
+    background: var(--gradient-main);
+    border-radius: 10px;
+    transition: width 0.5s var(--ease-out-expo);
+    /* Smooth width transition */
+    width: 0%;
+}
+
+/* Step indicators — JS toggles "active" (violet) and "done" (green) classes */
+.a-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.a-step.active {
+    color: var(--accent-violet);
+}
+
+.a-step.done {
+    color: var(--accent-green);
+}
+
+/* ---- TOAST ---- */
+/* Slide-in notifications that appear in the top-right corner */
+
+.toast-container {
+    position: fixed;
+    top: 88px;
+    /* Below the 72px navbar */
+    right: 24px;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    font-size: 14px;
+    color: var(--text-primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: toastIn 0.4s var(--ease-out-expo);
+    /* Slides in from right */
+    max-width: 360px;
+}
+
+/* Color-coded left border by type */
+.toast.success {
+    border-left: 3px solid var(--accent-green);
+}
+
+.toast.error {
+    border-left: 3px solid var(--accent-red);
+}
+
+.toast.info {
+    border-left: 3px solid var(--accent-cyan);
+}
+
+.toast.warning {
+    border-left: 3px solid var(--accent-orange);
+}
+
+/* Icon colors match border colors */
+.toast.success i {
+    color: var(--accent-green);
+}
+
+.toast.error i {
+    color: var(--accent-red);
+}
+
+.toast.info i {
+    color: var(--accent-cyan);
+}
+
+.toast.warning i {
+    color: var(--accent-orange);
+}
+
+/* JS adds this class before removing the element — triggers exit animation */
+.toast.removing {
+    animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes toastOut {
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+/* ---- ANIMATIONS ---- */
+/* Elements with data-animate start invisible and translated down */
+/* JS adds "visible" class via IntersectionObserver to trigger the transition */
+[data-animate] {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+}
+
+[data-animate].visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---- SCROLLBAR ---- */
+/* Custom thin scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- MOBILE MENU ---- */
+/* Hidden by default on all screens; toggled open via JS on mobile */
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 0 16px;
+}
+
+.mobile-menu.open {
+    display: flex;
+}
+
+.mobile-menu a {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.mobile-menu a:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+/* Mobile menu button — hidden on desktop */
+.mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.mobile-menu-btn span {
+    width: 20px;
+    height: 2px;
+    background: var(--text-secondary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex;
+    }
+}
+
+/* ---- SECTION CONTAINER ---- */
+/* Centered content wrapper used by features, process, CTA sections */
+.section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ---- SECTION HEADERS ---- */
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-tag {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-violet);
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.section-desc {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ---- HERO BUTTONS ---- */
+.hero-subtitle {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 32px;
+    max-width: 500px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+}
+
+.btn-primary-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: var(--gradient-main);
+    border-radius: var(--radius-full);
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-primary-large:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.35);
+}
+
+.btn-ghost-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-ghost-large:hover {
+    border-color: var(--accent-violet);
+    color: var(--text-primary);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+/* ---- HERO STATS ---- */
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-suffix {
+    font-size: 24px;
+    font-weight: 700;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border-subtle);
+}
+
+/* ---- MOCK RESUME CARD ---- */
+/* Shown inside the hero card stack */
+.mock-resume {
+    padding: 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mock-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mock-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gradient-main);
+    flex-shrink: 0;
+}
+
+.mock-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mock-line {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+}
+
+.mock-line.dim {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.mock-line.w50 {
+    width: 50%;
+}
+
+.mock-line.w60 {
+    width: 60%;
+}
+
+.mock-line.w70 {
+    width: 70%;
+}
+
+.mock-line.w75 {
+    width: 75%;
+}
+
+.mock-line.w80 {
+    width: 80%;
+}
+
+.mock-line.w85 {
+    width: 85%;
+}
+
+.mock-line.w90 {
+    width: 90%;
+}
+
+.mock-score-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(139, 92, 246, 0.08);
+    border-radius: var(--radius-md);
+    width: fit-content;
+}
+
+.mock-score-num {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--accent-violet);
+}
+
+.mock-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mock-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.mock-tag {
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.mock-tag.good {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--accent-green);
+}
+
+.mock-tag.warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-orange);
+}
+
+/* ---- NAV ACTIONS ---- */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ---- FEATURE CARD INTERNALS ---- */
+.feature-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(139, 92, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--accent-violet);
+    margin-bottom: 16px;
+}
+
+.feature-icon-wrap.gradient-bg {
+    background: var(--gradient-main);
+    color: #fff;
+}
+
+.feature-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.feature-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.feature-visual {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---- PROCESS STEP INTERNALS ---- */
+.step-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.step-content p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.step-visual {
+    margin-left: auto;
+    font-size: 24px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+
+/* ---- CTA INTERNALS ---- */
+.cta-card h2 {
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 700;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-card p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-card .btn-primary-large {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- DROPDOWN HEADER ---- */
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+}
+
+.dropdown-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.dropdown-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.dropdown-email {
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 0;
+}
+
+/* ---- DASHBOARD HEADER ---- */
+.dash-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.dash-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.dash-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ---- UPLOAD ICON ---- */
+.upload-icon {
+    margin-bottom: 8px;
+    opacity: 0.7;
+}
+
+.upload-zone-inner h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.upload-zone-inner p {
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+/* ---- MODE LABELS ---- */
+.mode-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mode-card i {
+    font-size: 20px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+}
+
+.mode-card span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mode-card small {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* ---- ANALYSIS OVERLAY INTERNALS ---- */
+.analysis-animation {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.analysis-icon {
+    position: relative;
+    z-index: 1;
+    font-size: 36px;
+    color: var(--accent-violet);
+}
+
+.analysis-progress {
+    width: 300px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 24px auto;
+}
+
+.analysis-steps {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* ---- JD INPUT ---- */
+.jd-input-wrap {
+    margin-bottom: 24px;
+}
+
+.jd-input-wrap label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.jd-input-wrap .optional {
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+/* ---- ANALYSIS MODES ---- */
+.analysis-modes {
+    margin-bottom: 24px;
+}
+
+/* ---- FILE PREVIEW ---- */
+.file-preview {
+    margin-bottom: 24px;
+}
+
+.file-info i {
+    font-size: 24px;
+    color: var(--accent-red);
+}
+
+.file-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.file-size {
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+/* ---- RESPONSIVE FEATURES ---- */
+@media (max-width: 1024px) {
+    .features-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .feature-card.feature-large {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card.feature-large {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
+    }
+
+    .mode-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero-stats {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .stat-divider {
+        display: none;
+    }
+
+    .process-step {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .step-visual {
+        margin-left: 0;
+    }
+}
+
+/* ---- FOOTER ---- */
+.footer {
+    padding: 40px 0;
+    text-align: center;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.footer p {
+    font-size: 13px;
+    color: var(--text-dim);
+}

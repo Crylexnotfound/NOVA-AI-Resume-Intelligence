@@ -10,71 +10,60 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
-    <!-- Google Fonts: Space Grotesk (headings), Inter (body), JetBrains Mono (numbers) -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
 
-    <!-- Font Awesome 6.5 — icons used throughout the UI -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- Puter JS SDK — provides auth, AI (GPT-4o), and KV storage for free -->
-    <!-- MUST load before any app scripts that reference window.puter -->
+    <!-- Puter JS SDK -->
     <script src="https://js.puter.com/v2/"></script>
 
-    <!-- PDF.js — used by parser.js to extract text from uploaded PDF resumes -->
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
 
-    <!-- jsPDF — used later for exporting analysis reports as PDF -->
+    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- Three.js r128 — used by visuals.js to render the animated particle orb on the hero -->
+    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <!-- Marked — markdown parser used to render AI responses as formatted HTML -->
+    <!-- Marked (Markdown Parser) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
 
-    <!-- Main stylesheet -->
+    <!-- Styles -->
     <link href="./style.css" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="favicon.svg">
 </head>
 
 <body>
-    <!-- React App Root — unused in vanilla JS mode, kept for compatibility -->
-    <div id="app"></div>
-
-    <!-- Custom cursor dot — positioned by visuals.js via mousemove -->
+    <!-- Custom Cursor -->
     <div id="cursor" class="custom-cursor"></div>
-    <!-- Cursor follower ring — lags behind cursor with easing for premium feel -->
     <div id="cursor-follower" class="cursor-follower"></div>
 
-    <!-- Film grain noise overlay — purely decorative, adds texture to dark bg -->
+    <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
-    <!-- Subtle grid lines in the background — purely decorative -->
+    <!-- Grid Background -->
     <div class="grid-bg"></div>
 
-    <!-- Loading screen — covers entire viewport until app.init() finishes -->
-    <!-- JS adds class "hide" to fade it out after initialization -->
+    <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen">
         <div class="loader-content">
-            <!-- Animated NOVA logo SVG -->
             <div class="loader-logo">
                 <svg width="60" height="60" viewBox="0 0 80 80" fill="none">
                     <rect width="80" height="80" rx="22" fill="url(#mainGrad)" />
-                    <!-- Document shape -->
                     <path d="M25 18H48L58 28V62C58 64.2091 56.2091 66 54 66H29C26.7909 66 25 64.2091 25 62V18Z"
                         fill="white" />
-                    <!-- Folded corner -->
                     <path d="M48 18V28H58L48 18Z" fill="#E2E8F0" />
-                    <!-- "N" letterform -->
                     <path d="M31 38V56L51 38V56" stroke="url(#mainGrad)" stroke-width="6" stroke-linecap="round"
                         stroke-linejoin="round" />
                     <defs>
@@ -85,7 +74,6 @@
                     </defs>
                 </svg>
             </div>
-            <!-- Progress bar — animated via CSS keyframe loaderFill (0% → 100% in 2s) -->
             <div class="loader-bar">
                 <div class="loader-bar-fill"></div>
             </div>
@@ -93,11 +81,9 @@
         </div>
     </div>
 
-    <!-- Fixed top navigation bar -->
-    <!-- JS adds class "scrolled" when window.scrollY > 50 for darker bg -->
+    <!-- Navigation -->
     <nav id="navbar" class="navbar">
         <div class="nav-inner">
-            <!-- Logo — clicking calls app.goHome() to scroll back to hero -->
             <a href="#" class="nav-logo" onclick="event.preventDefault(); app.goHome()">
                 <svg width="36" height="36" viewBox="0 0 80 80" fill="none">
                     <rect width="80" height="80" rx="22" fill="url(#navGrad)" />
@@ -107,7 +93,6 @@
                     <path d="M31 38V56L51 38V56" stroke="url(#navGrad)" stroke-width="6" stroke-linecap="round"
                         stroke-linejoin="round" />
                     <defs>
-                        <!-- NOTE: x1="0" y1="0" — both attributes required for correct gradient direction -->
                         <linearGradient id="navGrad" x1="0" y1="0" x2="80" y2="80">
                             <stop stop-color="#8B5CF6" />
                             <stop offset="1" stop-color="#06B6D4" />
@@ -117,7 +102,6 @@
                 <span>NOVA</span>
             </a>
 
-            <!-- Desktop nav links — hidden on mobile (<768px) -->
             <div class="nav-links">
                 <a href="#features" class="nav-link" data-hover="Features">Features</a>
                 <a href="#how-it-works" class="nav-link" data-hover="Process">Process</a>
@@ -125,13 +109,9 @@
             </div>
 
             <div class="nav-actions">
-                <!-- "Get Started" button — shown when user is NOT signed in -->
-                <!-- Calls app.handleAuth() → Auth.handleAuth() → PuterService.signIn() -->
                 <button type="button" id="auth-btn" class="btn-glow" onclick="app.handleAuth()">
                     <span class="btn-glow-text">Get Started</span>
                 </button>
-                <!-- User pill — shown when user IS signed in (hidden by default) -->
-                <!-- Clicking toggles the user dropdown menu -->
                 <div id="user-pill" class="user-pill hidden">
                     <div class="user-avatar" id="user-avatar">N</div>
                     <span id="user-display-name">User</span>
@@ -139,13 +119,12 @@
                 </div>
             </div>
 
-            <!-- Hamburger button — only visible on mobile -->
             <button type="button" class="mobile-menu-btn" onclick="app.toggleMobileMenu()">
                 <span></span><span></span><span></span>
             </button>
         </div>
 
-        <!-- Mobile dropdown menu — toggled by app.toggleMobileMenu() -->
+        <!-- Mobile Menu -->
         <div id="mobile-menu" class="mobile-menu">
             <a href="#features" onclick="app.toggleMobileMenu()">Features</a>
             <a href="#how-it-works" onclick="app.toggleMobileMenu()">Process</a>
@@ -153,8 +132,7 @@
         </div>
     </nav>
 
-    <!-- User account dropdown — appears below navbar when user-pill is clicked -->
-    <!-- Positioned fixed at top:72px right:32px -->
+    <!-- User Dropdown -->
     <div id="user-dropdown" class="user-dropdown hidden">
         <div class="dropdown-header">
             <div class="dropdown-avatar" id="dropdown-avatar">N</div>
@@ -180,23 +158,16 @@
     </div>
 
     <!-- ============ HERO SECTION ============ -->
-    <!-- Two-column grid: left = text content, right = animated card stack -->
-    <!-- Canvas for Three.js particle orb is positioned absolutely behind content -->
     <section id="hero" class="hero-section">
-        <!-- Three.js canvas — visuals.js renders a rotating particle sphere here -->
         <canvas id="hero-orb" class="hero-orb"></canvas>
-
         <div class="hero-content">
-            <!-- Animated badge — data-animate triggers fade-up on scroll into view -->
             <div class="hero-badge" data-animate="fade-up">
                 <div class="badge-dot"></div>
                 <span>AI-Powered Resume Intelligence</span>
             </div>
 
-            <!-- Main headline — clamp(40px, 5.5vw, 72px) responsive font size -->
             <h1 class="hero-title" data-animate="fade-up" data-delay="100">
                 <span class="hero-line">Your resume,</span>
-                <!-- gradient-text uses background-clip: text for violet→cyan gradient -->
                 <span class="hero-line gradient-text">reimagined by AI.</span>
             </h1>
 
@@ -206,20 +177,16 @@
             </p>
 
             <div class="hero-actions" data-animate="fade-up" data-delay="300">
-                <!-- Primary CTA — requires auth, then shows dashboard with upload zone -->
                 <button type="button" class="btn-primary-large" onclick="app.startAnalysis()">
                     <span>Launch Analysis</span>
                     <i class="fas fa-arrow-right"></i>
                 </button>
-                <!-- Ghost CTA — smooth scrolls to features section -->
                 <button type="button" class="btn-ghost-large"
                     onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
                     <span>Explore Features</span>
                 </button>
             </div>
 
-            <!-- Animated counters — data-count is the target number, starts at 0 -->
-            <!-- visuals.js animateCounters() uses IntersectionObserver to trigger -->
             <div class="hero-stats" data-animate="fade-up" data-delay="400">
                 <div class="stat-item">
                     <span class="stat-number" data-count="97">0</span><span class="stat-suffix">%</span>
@@ -238,14 +205,11 @@
             </div>
         </div>
 
-        <!-- Hero Visual — stacked card effect with parallax mouse tracking -->
-        <!-- visuals.js initHeroParallax() applies 3D transform on mousemove -->
+        <!-- Hero Visual -->
         <div class="hero-visual" data-animate="fade-up" data-delay="200">
             <div class="hero-card-stack">
-                <!-- Back and mid cards are decorative — rotated and scaled down -->
                 <div class="hero-card hero-card-back"></div>
                 <div class="hero-card hero-card-mid"></div>
-                <!-- Front card shows a mock resume preview with animated score ring -->
                 <div class="hero-card hero-card-front">
                     <div class="mock-resume">
                         <div class="mock-header">
@@ -255,13 +219,10 @@
                                 <div class="mock-line w50 dim"></div>
                             </div>
                         </div>
-                        <!-- SVG score ring — stroke-dashoffset creates partial arc effect -->
                         <div class="mock-score-badge">
                             <svg width="60" height="60" viewBox="0 0 60 60">
-                                <!-- Background track circle -->
                                 <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(139,92,246,0.2)"
                                     stroke-width="4" />
-                                <!-- Foreground arc — dasharray=163 (circumference), dashoffset=16 shows ~90% -->
                                 <circle cx="30" cy="30" r="26" fill="none" stroke="url(#scoreGrad)" stroke-width="4"
                                     stroke-dasharray="163" stroke-dashoffset="16" stroke-linecap="round"
                                     transform="rotate(-90 30 30)" />
@@ -274,7 +235,6 @@
                             </svg>
                             <span class="mock-score-num">92</span>
                         </div>
-                        <!-- Placeholder content lines -->
                         <div class="mock-section">
                             <div class="mock-line w90"></div>
                             <div class="mock-line w80 dim"></div>
@@ -284,7 +244,6 @@
                             <div class="mock-line w60"></div>
                             <div class="mock-line w75 dim"></div>
                         </div>
-                        <!-- Status tags shown on the mock resume card -->
                         <div class="mock-tags">
                             <span class="mock-tag good">ATS Ready</span>
                             <span class="mock-tag good">Keywords</span>
@@ -297,7 +256,6 @@
     </section>
 
     <!-- ============ FEATURES ============ -->
-    <!-- 3-column grid of feature cards; first card spans all 3 columns -->
     <section id="features" class="features-section">
         <div class="section-container">
             <div class="section-header" data-animate="fade-up">
@@ -307,14 +265,13 @@
             </div>
 
             <div class="features-grid">
-                <!-- Large feature card — spans full width, has animated radar visual -->
                 <div class="feature-card feature-large" data-animate="fade-up">
                     <div class="feature-icon-wrap gradient-bg">
                         <i class="fas fa-binoculars"></i>
                     </div>
                     <h3>Job Match Radar</h3>
-                    <p>AI scans thousands of job listings and matches them against your resume...</p>
-                    <!-- Animated radar rings and blinking dots — pure CSS animations -->
+                    <p>AI scans thousands of job listings and matches them against your resume. Get match percentages,
+                        missing skills, and auto-generated tailored cover letters.</p>
                     <div class="feature-visual">
                         <div class="radar-ring ring-1"></div>
                         <div class="radar-ring ring-2"></div>
@@ -325,41 +282,58 @@
                     </div>
                 </div>
 
-                <!-- Standard feature cards — 1/3 width each -->
                 <div class="feature-card" data-animate="fade-up" data-delay="100">
-                    <div class="feature-icon-wrap"><i class="fas fa-fire"></i></div>
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-fire"></i>
+                    </div>
                     <h3>Resume Review</h3>
-                    <p>Receive candid, constructive AI feedback...</p>
+                    <p>Receive candid, constructive AI feedback with clear, actionable suggestions to help your resume
+                        stand out.</p>
                 </div>
 
                 <div class="feature-card" data-animate="fade-up" data-delay="200">
-                    <div class="feature-icon-wrap"><i class="fas fa-dna"></i></div>
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-dna"></i>
+                    </div>
                     <h3>Resume DNA</h3>
-                    <p>Visual genome-style mapping of your resume's strengths...</p>
+                    <p>Visual genome-style mapping of your resume's strengths, weaknesses, and unique career
+                        fingerprint.</p>
                 </div>
 
                 <div class="feature-card" data-animate="fade-up" data-delay="100">
-                    <div class="feature-icon-wrap"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                    </div>
                     <h3>Career Predictor</h3>
-                    <p>AI analyzes your trajectory and predicts possible career paths...</p>
+                    <p>AI analyzes your trajectory and predicts possible career paths, salary ranges, and growth
+                        opportunities.</p>
                 </div>
 
                 <div class="feature-card" data-animate="fade-up" data-delay="200">
-                    <div class="feature-icon-wrap"><i class="fas fa-user-tie"></i></div>
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
                     <h3>Hiring Manager Mode</h3>
-                    <p>AI acts as a hiring manager from your target company...</p>
+                    <p>AI acts as a hiring manager from your target company. Get insider perspective on how your resume
+                        reads.</p>
                 </div>
 
                 <div class="feature-card" data-animate="fade-up" data-delay="100">
-                    <div class="feature-icon-wrap"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
                     <h3>Cover Letter AI</h3>
-                    <p>Auto-generate perfectly tailored cover letters...</p>
+                    <p>Auto-generate perfectly tailored cover letters for any job posting. One-click personalization.
+                    </p>
                 </div>
 
                 <div class="feature-card" data-animate="fade-up" data-delay="200">
-                    <div class="feature-icon-wrap"><i class="fas fa-microphone"></i></div>
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-microphone"></i>
+                    </div>
                     <h3>Interview Prep</h3>
-                    <p>AI generates likely interview questions based on your resume...</p>
+                    <p>AI generates likely interview questions based on your resume and target role. Practice with AI
+                        mock interviews.</p>
                 </div>
             </div>
         </div>
@@ -374,15 +348,16 @@
                 </h2>
             </div>
 
-            <!-- Vertical list of process steps — each slides right on hover -->
             <div class="process-steps">
                 <div class="process-step" data-animate="fade-up">
                     <div class="step-number">01</div>
                     <div class="step-content">
-                        <h3>Upload &amp; Analyze</h3>
+                        <h3>Upload & Analyze</h3>
                         <p>Drop your resume. Our AI engine dissects every word, structure, and keyword in seconds.</p>
                     </div>
-                    <div class="step-visual"><i class="fas fa-cloud-arrow-up"></i></div>
+                    <div class="step-visual">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                    </div>
                 </div>
 
                 <div class="process-step" data-animate="fade-up" data-delay="100">
@@ -392,7 +367,9 @@
                         <p>Receive deep analysis: ATS score, Resume DNA, job matches, career predictions, and the
                             Review.</p>
                     </div>
-                    <div class="step-visual"><i class="fas fa-brain"></i></div>
+                    <div class="step-visual">
+                        <i class="fas fa-brain"></i>
+                    </div>
                 </div>
 
                 <div class="process-step" data-animate="fade-up" data-delay="200">
@@ -401,7 +378,9 @@
                         <h3>Land the Job</h3>
                         <p>Use AI-matched jobs, auto cover letters, and interview prep to close the deal.</p>
                     </div>
-                    <div class="step-visual"><i class="fas fa-rocket"></i></div>
+                    <div class="step-visual">
+                        <i class="fas fa-rocket"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -411,11 +390,9 @@
     <section class="cta-section">
         <div class="section-container">
             <div class="cta-card" data-animate="fade-up">
-                <!-- Radial glow behind the card — purely decorative -->
                 <div class="cta-glow"></div>
                 <h2>Ready to transform your career?</h2>
                 <p>Join thousands who've already upgraded their job search with NOVA intelligence.</p>
-                <!-- Same as hero CTA — requires auth, then shows dashboard -->
                 <button type="button" class="btn-primary-large" onclick="app.startAnalysis()">
                     <span>Start Free Analysis</span>
                     <i class="fas fa-arrow-right"></i>
@@ -425,12 +402,9 @@
     </section>
 
     <!-- ============ DASHBOARD (Hidden by default) ============ -->
-    <!-- Shown by app.showDashboard() after user authenticates -->
-    <!-- Hidden by app.goHome() when user clicks the logo -->
     <section id="dashboard" class="dashboard-section hidden">
         <div class="dash-container">
-
-            <!-- Dashboard header with title and history button -->
+            <!-- Dashboard Header -->
             <div class="dash-header">
                 <div>
                     <h2 class="dash-title">Command Center</h2>
@@ -443,17 +417,13 @@
                 </div>
             </div>
 
-            <!-- ============ UPLOAD ZONE ============ -->
-            <!-- Shown by default; hidden when a file is selected -->
-            <!-- Supports: click to browse, drag-and-drop -->
+            <!-- Upload Zone -->
             <div class="upload-zone" id="upload-zone">
                 <div class="upload-zone-inner" id="upload-drop-area">
-                    <!-- SVG upload icon with gradient stroke -->
                     <div class="upload-icon">
                         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
                             <rect x="8" y="16" width="48" height="40" rx="8" stroke="url(#uploadGrad)" stroke-width="2"
                                 stroke-dasharray="6 4" />
-                            <!-- Upload arrow pointing up -->
                             <path d="M32 40V24M32 24L24 32M32 24L40 32" stroke="url(#uploadGrad)" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round" />
                             <defs>
@@ -466,7 +436,6 @@
                     </div>
                     <h3>Drop your resume here</h3>
                     <p>PDF files supported (Max 10MB)</p>
-                    <!-- Hidden file input — triggered by clicking the drop area or Browse button -->
                     <input type="file" id="file-input" accept=".pdf" hidden>
                     <button type="button" class="btn-outline-sm"
                         onclick="document.getElementById('file-input').click()">
@@ -475,64 +444,53 @@
                 </div>
             </div>
 
-            <!-- ============ FILE PREVIEW ============ -->
-            <!-- Hidden by default; shown after a valid file is selected -->
-            <!-- app.handleFile() hides upload-zone and shows this -->
+            <!-- File Preview -->
             <div id="file-preview" class="file-preview hidden">
-                <!-- File info bar showing name, size, and remove button -->
                 <div class="file-info">
                     <i class="fas fa-file-pdf"></i>
                     <div>
-                        <!-- Populated by app.handleFile() -->
                         <span class="file-name" id="file-name">resume.pdf</span>
                         <span class="file-size" id="file-size">2.4 MB</span>
                     </div>
-                    <!-- Clicking remove calls app.removeFile() — resets state and shows upload zone -->
                     <button type="button" class="file-remove" onclick="app.removeFile()">
                         <i class="fas fa-xmark"></i>
                     </button>
                 </div>
 
-                <!-- Optional job description textarea — used to tailor analysis -->
+                <!-- Job Description Input -->
                 <div class="jd-input-wrap">
                     <label>Target Job Description <span class="optional">(optional but recommended)</span></label>
                     <textarea id="job-description"
                         placeholder="Paste the job description here for targeted analysis and job matching..."></textarea>
                 </div>
 
-                <!-- Analysis mode selector — 4 modes, each changes the AI prompt used -->
+                <!-- Analysis Mode Selector -->
                 <div class="analysis-modes">
                     <label class="mode-label">Analysis Mode</label>
                     <div class="mode-grid">
-                        <!-- Full Analysis (default) — runs all prompts -->
                         <button type="button" class="mode-card active" data-mode="full" onclick="app.selectMode(this)">
                             <i class="fas fa-atom"></i>
                             <span>Full Analysis</span>
                             <small>Complete deep dive</small>
                         </button>
-                        <!-- Resume Review — candid feedback prompt only -->
                         <button type="button" class="mode-card" data-mode="roast" onclick="app.selectMode(this)">
                             <i class="fas fa-fire"></i>
                             <span>Resume Review</span>
                             <small>Candid and constructive</small>
                         </button>
-                        <!-- Job Match — job matching prompt only -->
                         <button type="button" class="mode-card" data-mode="job-match" onclick="app.selectMode(this)">
                             <i class="fas fa-bullseye"></i>
                             <span>Job Match</span>
-                            <small>Match &amp; apply</small>
+                            <small>Match & apply</small>
                         </button>
-                        <!-- Interview Prep — interview questions prompt only -->
                         <button type="button" class="mode-card" data-mode="interview" onclick="app.selectMode(this)">
                             <i class="fas fa-microphone"></i>
                             <span>Interview Prep</span>
-                            <small>Practice Q&amp;A</small>
+                            <small>Practice Q&A</small>
                         </button>
                     </div>
                 </div>
 
-                <!-- Main analyze button — triggers app.analyzeResume() -->
-                <!-- This is the final step before AI processing begins -->
                 <button type="button" class="btn-analyze" id="analyze-btn" onclick="app.analyzeResume()">
                     <div class="btn-analyze-bg"></div>
                     <i class="fas fa-wand-magic-sparkles"></i>
@@ -540,20 +498,385 @@
                 </button>
             </div>
 
-            <!-- Results section — hidden until analysis completes -->
+            <!-- ============ RESULTS ============ -->
             <div id="results-section" class="results-section hidden">
-                <!-- ... populated by app.js after analysis ... -->
-            </div>
+                <!-- Score Overview -->
+                <div class="results-top">
+                    <div class="score-card-main">
+                        <div class="score-ring-wrap">
+                            <svg width="200" height="200" viewBox="0 0 200 200" class="score-ring-svg">
+                                <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.05)"
+                                    stroke-width="12" />
+                                <circle id="score-ring" cx="100" cy="100" r="88" fill="none" stroke="url(#resultGrad)"
+                                    stroke-width="12" stroke-dasharray="553" stroke-dashoffset="553"
+                                    stroke-linecap="round" transform="rotate(-90 100 100)" />
+                                <defs>
+                                    <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#8B5CF6" />
+                                        <stop offset="100%" stop-color="#06B6D4" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="score-center">
+                                <span class="score-number" id="ats-score">0</span>
+                                <span class="score-label">ATS Score</span>
+                            </div>
+                        </div>
+                        <div class="score-verdict" id="score-verdict">Analyzing...</div>
+                        <div class="score-actions">
+                            <button type="button" class="btn-outline-sm" onclick="app.exportPDF()">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                            <button type="button" class="btn-outline-sm" onclick="app.reAnalyze()">
+                                <i class="fas fa-rotate"></i> Re-Analyze
+                            </button>
+                        </div>
+                    </div>
 
+                    <!-- Category Scores -->
+                    <div class="category-scores" id="category-scores">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Results Tabs -->
+                <div class="results-tabs">
+                    <button type="button" class="tab active" data-tab="feedback"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-clipboard-list"></i> Analysis
+                    </button>
+                    <button type="button" class="tab" data-tab="roast"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-fire"></i> Review
+                    </button>
+                    <button type="button" class="tab" data-tab="jobs"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-bullseye"></i> Job Matches
+                    </button>
+                    <button type="button" class="tab" data-tab="career"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-chart-line"></i> Career Path
+                    </button>
+                    <button type="button" class="tab" data-tab="cover-letter"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-envelope-open-text"></i> Cover Letter
+                    </button>
+                    <button type="button" class="tab" data-tab="interview"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-microphone"></i> Interview
+                    </button>
+                    <button type="button" class="tab" data-tab="resume-gen"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-file-circle-plus"></i> New Resume
+                    </button>
+                    <button type="button" class="tab" data-tab="chat"
+                        onclick="event.preventDefault(); app.switchTab(this)">
+                        <i class="fas fa-comments"></i> AI Coach
+                    </button>
+                </div>
+
+                <!-- Tab Panels -->
+                <div class="tab-panels">
+                    <!-- Feedback Panel -->
+                    <div class="tab-panel active" id="panel-feedback">
+                        <div id="feedback-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Roast Panel -->
+                    <div class="tab-panel" id="panel-roast">
+                        <div class="roast-card">
+                            <div class="roast-header">
+                                <i class="fas fa-fire"></i>
+                                <h3>Resume Review</h3>
+                                <span class="roast-warning">Growth-focused suggestions</span>
+                            </div>
+                            <div class="roast-content" id="roast-content">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jobs Panel -->
+                    <div class="tab-panel" id="panel-jobs">
+                        <div class="jobs-header">
+                            <h3>Job Match Radar</h3>
+                            <p>AI-matched positions based on your resume profile</p>
+                            <div class="jobs-filter">
+                                <input type="text" id="job-search" placeholder="Filter by title, company, or skill..."
+                                    class="input-dark">
+                            </div>
+                            <div class="jobs-region" style="margin-top:12px">
+                                <label style="display:block;margin-bottom:6px">Region</label>
+                                <div style="display:flex;gap:8px">
+                                    <input type="text" id="job-region" value="Abu Dhabi, UAE" class="input-dark"
+                                        style="flex:1" placeholder="e.g. Abu Dhabi, UAE">
+                                    <button class="btn-outline-sm"
+                                        onclick="event.preventDefault(); app.loadLiveJobs()"><i
+                                            class="fas fa-search"></i> Refresh Live Jobs</button>
+                                    <a class="btn-outline-sm" href="./jobs-app/index.html" target="_blank"
+                                        rel="noopener noreferrer"><i class="fas fa-up-right-from-square"></i> Open Pro
+                                        Board</a>
+                                </div>
+                                <div class="jobs-external"
+                                    style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                                    <button type="button" class="btn-outline-sm"
+                                        onclick="app.searchExternal('linkedin')">
+                                        <i class="fab fa-linkedin"></i> LinkedIn Search
+                                    </button>
+                                    <button type="button" class="btn-outline-sm" onclick="app.searchExternal('indeed')">
+                                        <i class="fas fa-briefcase"></i> Indeed Search
+                                    </button>
+                                    <button type="button" class="btn-outline-sm"
+                                        onclick="app.searchExternal('glassdoor')">
+                                        <i class="fas fa-window-maximize"></i> Glassdoor Search
+                                    </button>
+                                </div>
+                                <small style="color:var(--text-dim);display:block;margin-top:6px">Match % appears after
+                                    analyzing at least 5 postings</small>
+                            </div>
+                            <div class="jobs-grid" id="jobs-grid">
+                                <!-- Populated by JS -->
+                            </div>
+                            <button type="button" class="btn-outline-sm center-btn" id="find-more-jobs"
+                                onclick="event.preventDefault(); app.findMoreJobs()">
+                                <i class="fas fa-binoculars"></i> Scan for More Jobs
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Career Panel -->
+                    <div class="tab-panel" id="panel-career">
+                        <div class="career-content" id="career-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Cover Letter Panel -->
+                    <div class="tab-panel" id="panel-cover-letter">
+                        <div class="cl-header">
+                            <h3>AI Cover Letter Generator</h3>
+                            <p>Tailored to your resume and target position</p>
+                        </div>
+                        <div class="cl-input">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                                <div>
+                                    <label>Company Name</label>
+                                    <input type="text" id="cl-company" placeholder="e.g. Google" class="input-dark">
+                                </div>
+                                <div>
+                                    <label>Target Position</label>
+                                    <input type="text" id="cl-position" placeholder="e.g. Senior Developer"
+                                        class="input-dark">
+                                </div>
+                            </div>
+                            <button type="button" class="btn-glow" onclick="app.generateCoverLetter()">
+                                <span class="btn-glow-text"><i class="fas fa-wand-magic-sparkles"></i>
+                                    Generate Cover Letter</span>
+                            </button>
+                        </div>
+                        <div class="cl-output" id="cl-output">
+                            <p class="cl-placeholder">Your AI-generated cover letter will appear here...</p>
+                        </div>
+                        <button type="button" class="btn-outline-sm" id="copy-cl" onclick="app.copyCoverLetter()"
+                            style="display:none">
+                            <i class="fas fa-copy"></i> Copy to Clipboard
+                        </button>
+                    </div>
+
+                    <!-- Interview Panel -->
+                    <div class="tab-panel" id="panel-interview">
+                        <div class="cl-header">
+                            <h3>Interview Question Practice</h3>
+                            <p>Practice answers and request feedback</p>
+                        </div>
+                        <div id="interview-root" class="interview-content"></div>
+                    </div>
+
+                    <!-- Resume Generator Panel -->
+                    <div class="tab-panel" id="panel-resume-gen">
+                        <div class="rg-header">
+                            <h3>AI Resume Generator</h3>
+                            <p>NOVA rebuilds your resume from scratch using your analysis data. Pick a template,
+                                click
+                                generate.</p>
+                        </div>
+
+                        <div class="template-selector">
+                            <label class="mode-label">Choose Template</label>
+                            <div class="template-grid">
+                                <button class="template-card active" data-template="professional" type="button"
+                                    onclick="app.selectTemplate(this)">
+                                    <div class="tmpl-preview professional-tmpl">
+                                        <div class="tmpl-bar"></div>
+                                        <div class="tmpl-lines">
+                                            <div class="tl w60"></div>
+                                            <div class="tl w40 dim"></div>
+                                        </div>
+                                        <div class="tmpl-lines">
+                                            <div class="tl w90 dim"></div>
+                                            <div class="tl w80 dim"></div>
+                                        </div>
+                                    </div>
+                                    <span>Professional</span>
+                                    <small>Clean & ATS-friendly</small>
+                                </button>
+                                <button type="button" class="template-card" data-template="modern"
+                                    onclick="app.selectTemplate(this)">
+                                    <div class="tmpl-preview modern-tmpl">
+                                        <div class="tmpl-sidebar"></div>
+                                        <div class="tmpl-main">
+                                            <div class="tl w70"></div>
+                                            <div class="tl w50 dim"></div>
+                                            <div class="tl w80 dim"></div>
+                                        </div>
+                                    </div>
+                                    <span>Modern</span>
+                                    <small>Creative & bold</small>
+                                </button>
+                                <button class="template-card" data-template="minimal" type="button"
+                                    onclick="app.selectTemplate(this)">
+                                    <div class="tmpl-preview minimal-tmpl">
+                                        <div class="tmpl-lines center">
+                                            <div class="tl w50"></div>
+                                            <div class="tl w30 dim"></div>
+                                        </div>
+                                        <div class="tmpl-divider"></div>
+                                        <div class="tmpl-lines">
+                                            <div class="tl w80 dim"></div>
+                                            <div class="tl w70 dim"></div>
+                                        </div>
+                                    </div>
+                                    <span>Minimal</span>
+                                    <small>Executive style</small>
+                                </button>
+                                <button class="template-card" data-template="creative" type="button"
+                                    onclick="app.selectTemplate(this)">
+                                    <div class="tmpl-preview technical-tmpl">
+                                        <div class="tmpl-lines">
+                                            <div class="tl w60"></div>
+                                            <div class="tl w40 dim"></div>
+                                        </div>
+                                        <div class="tmpl-tags">
+                                            <div class="tl-tag"></div>
+                                            <div class="tl-tag"></div>
+                                            <div class="tl-tag"></div>
+                                        </div>
+                                        <div class="tmpl-lines">
+                                            <div class="tl w90 dim"></div>
+                                        </div>
+                                    </div>
+                                    <span>Creative</span>
+                                    <small>Expressive & bold</small>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="template-selector" style="margin-top:16px">
+                            <label class="mode-label">Target Job Description (optional)</label>
+                            <textarea id="rg-job-description" class="input-dark"
+                                placeholder="Paste a target job description here to align your resume..."
+                                style="width:100%;min-height:90px"></textarea>
+                        </div>
+                        <div class="template-selector" style="margin-top:16px">
+                            <label class="mode-label">Choose Color Palette</label>
+                            <div class="template-grid">
+                                <button class="palette-card active" data-palette="blue" type="button"
+                                    onclick="app.selectPalette(this)">
+                                    <div class="palette-swatch">
+                                        <span style="background:#8B5CF6"></span>
+                                        <span style="background:#06B6D4"></span>
+                                        <span style="background:#111827"></span>
+                                    </div>
+                                    <span>Blue</span>
+                                </button>
+                                <button type="button" class="palette-card" data-palette="teal"
+                                    onclick="app.selectPalette(this)">
+                                    <div class="palette-swatch">
+                                        <span style="background:#06B6D4"></span>
+                                        <span style="background:#14B8A6"></span>
+                                        <span style="background:#0f172a"></span>
+                                    </div>
+                                    <span>Teal</span>
+                                </button>
+                                <button type="button" class="palette-card" data-palette="grey"
+                                    onclick="app.selectPalette(this)">
+                                    <div class="palette-swatch">
+                                        <span style="background:#64748b"></span>
+                                        <span style="background:#94a3b8"></span>
+                                        <span style="background:#0b1220"></span>
+                                    </div>
+                                    <span>Grey</span>
+                                </button>
+                                <button type="button" class="palette-card" data-palette="sunset"
+                                    onclick="app.selectPalette(this)">
+                                    <div class="palette-swatch">
+                                        <span style="background:#f97316"></span>
+                                        <span style="background:#facc15"></span>
+                                        <span style="background:#450a0a"></span>
+                                    </div>
+                                    <span>Sunset</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-analyze" onclick="app.generateNewResume()">
+                            <div class="btn-analyze-bg"></div>
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                            <span>Generate Improved Resume</span>
+                        </button>
+
+                        <div id="generated-resume-output" class="generated-resume-output" style="margin-top:24px">
+                            <p class="cl-placeholder">Your AI-generated resume will appear here after you click
+                                generate...</p>
+                        </div>
+
+                        <button class="btn-outline-sm center-btn" id="download-resume-btn"
+                            onclick="app.downloadResumePDF()" style="display:none;margin-top:16px">
+                            <i class="fas fa-download"></i> Download as PDF
+                        </button>
+                    </div>
+
+                    <!-- Chat Panel -->
+                    <div class="tab-panel" id="panel-chat">
+                        <div class="chat-container">
+                            <div class="chat-header">
+                                <div class="chat-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h4>NOVA AI Coach</h4>
+                                    <span class="chat-status"><span class="status-dot"></span> Online</span>
+                                </div>
+                            </div>
+                            <div class="chat-messages" id="chat-messages">
+                                <div class="chat-msg ai">
+                                    <div class="msg-bubble">
+                                        I've analyzed your resume in depth. Ask me anything - from improving
+                                        specific
+                                        sections, to career strategy, to salary negotiation tips. I'm here to help
+                                        you
+                                        level up.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input-wrap">
+                                <input type="text" id="chat-input" placeholder="Ask NOVA anything about your career..."
+                                    class="input-dark">
+                                <button type="button" class="chat-send" onclick="app.sendChat()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- ============ ANALYSIS OVERLAY ============ -->
-    <!-- Full-screen modal shown during AI processing -->
-    <!-- Shown by Visuals.showAnalysisOverlay(), hidden by Visuals.hideAnalysisOverlay() -->
     <div id="analysis-overlay" class="analysis-overlay hidden">
         <div class="analysis-modal">
-            <!-- Animated pulsing rings around the spinning atom icon -->
             <div class="analysis-animation">
                 <div class="pulse-ring ring-1"></div>
                 <div class="pulse-ring ring-2"></div>
@@ -562,13 +885,10 @@
                     <i class="fas fa-atom fa-spin"></i>
                 </div>
             </div>
-            <!-- Step text — updated by Visuals.updateAnalysisStep(step, text) -->
             <h3 id="analysis-step-text">Initializing AI Engine...</h3>
-            <!-- Progress bar — width set to step * 25% (4 steps = 100%) -->
             <div class="analysis-progress">
                 <div class="analysis-progress-bar" id="analysis-progress-bar"></div>
             </div>
-            <!-- Step indicators — JS adds "active" and "done" classes -->
             <div class="analysis-steps" id="analysis-steps">
                 <div class="a-step active" data-step="1">
                     <i class="fas fa-file-lines"></i> Parsing Document
@@ -586,47 +906,89 @@
         </div>
     </div>
 
-    <!-- Toast notification container — toasts are appended here by Visuals.toast() -->
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <svg width="32" height="32" viewBox="0 0 80 80" fill="none">
+                    <rect width="80" height="80" rx="22" fill="url(#footGrad)" />
+                    <path d="M25 18H48L58 28V62C58 64.2091 56.2091 66 54 66H29C26.7909 66 25 64.2091 25 62V18Z"
+                        fill="white" />
+                    <path d="M48 18V28H58L48 18Z" fill="#E2E8F0" />
+                    <path d="M31 38V56L51 38V56" stroke="url(#footGrad)" stroke-width="6" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <defs>
+                        <linearGradient id="footGrad" x1="0" y1="0" x2="80" y2="80">
+                            <stop stop-color="#8B5CF6" />
+                            <stop offset="1" stop-color="#06B6D4" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>NOVA</span>
+            </div>
+            <p class="footer-copy">AI Resume Intelligence Platform. Powered by Puter.</p>
+            <div class="footer-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">Process</a>
+                <a href="#" onclick="event.preventDefault(); app.startAnalysis()">Analyze</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- ============ SCRIPTS ============ -->
-    <!-- CRITICAL: Load order matters — each script depends on the ones above it -->
+    <!-- App Scripts — load order is critical; each file depends on those above it -->
 
-    <!-- 1. Puter service wrapper — must load first, wraps window.puter SDK -->
+    <!-- 1. Puter SDK wrapper — must be first; wraps window.puter for auth, AI, and KV -->
     <script src="./lib/puter-service.js"></script>
 
     <!-- 2. Helpers — pure utility functions, no dependencies -->
     <script src="./js/helpers.js"></script>
 
-    <!-- 3. Parser — depends on pdfjsLib (loaded in <head>) -->
+    <!-- 3. Parser — PDF text extraction; depends on pdfjsLib (loaded in <head>) -->
     <script src="./js/parser.js"></script>
 
-    <!-- 4. Visuals — depends on THREE (loaded in <head>) and Helpers -->
+    <!-- 4. Visuals — animations, cursor, Three.js orb, toasts; depends on THREE and Helpers -->
     <script src="./js/visuals.js"></script>
 
-    <!-- 5. Auth — depends on PuterService, Visuals, and app -->
+    <!-- 5. Auth — sign-in/out UI; depends on PuterService, Visuals, and app -->
     <script src="./js/auth.js"></script>
 
-    <!-- 6. Prompts — AI prompt templates (needed by app.analyzeResume) -->
+    <!-- 6. Prompts — AI prompt templates; depends on nothing -->
     <script src="./js/prompts.js"></script>
 
-    <!-- 7. Landing — hero animations, navigation, scroll effects -->
-    <script src="./js/landing.js"></script>
-
-    <!-- 7. Analysis — defines Upload object with full implementation -->
-    <script src="./js/analysis.js"></script>
-
-    <!-- 8. Upload guard — patches missing methods onto Upload, does NOT overwrite -->
-    <script src="./js/upload.js"></script>
-
-
-    <!-- 10. html2pdf — used for PDF export -->
+    <!-- 7. html2pdf — PDF export for generated resumes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- 11. App — main controller, depends on all above; calls app.init() on DOMContentLoaded -->
+    <!-- 8. Landing — hero animations, scroll behaviour, navigation; depends on Visuals, PuterService, Auth -->
+    <script src="./js/landing.js"></script>
+
+    <!-- 9. Upload — file upload and state management; depends on Parser, Visuals -->
+    <script src="./js/upload.js"></script>
+
+    <!-- 10. Analysis — resume analysis and results rendering; depends on Parser, PuterService, Visuals, Helpers, Prompts -->
+    <script src="./js/analysis.js"></script>
+
+    <!-- 11. CoverLetter — cover letter generation; depends on PuterService, Prompts, Visuals -->
+    <script src="./js/coverLetter.js"></script>
+
+    <!-- 12. Jobs — job search and listings; depends on PuterService, Visuals -->
+    <script src="./js/jobs.js"></script>
+
+    <!-- 13. ResumeGen — resume generation and PDF export; depends on PuterService, Prompts, Visuals -->
+    <script src="./js/resumeGen.js"></script>
+
+    <!-- 14. Chat — AI coach chat; depends on PuterService, Visuals -->
+    <script src="./js/chat.js"></script>
+
+    <!-- 15. Career — career prediction and roast; depends on PuterService, Prompts, Visuals -->
+    <script src="./js/career.js"></script>
+
+    <!-- 16. App — thin orchestrator; initialises all modules, exposes global app object -->
     <script src="./js/app.js"></script>
 
-    <!-- 12. Interview app — separate module for interview prep feature -->
+    <!-- 17. Interview App — standalone interview prep module; depends on Visuals, Helpers, PuterService -->
     <script src="./js/interview-app.js"></script>
 </body>
 

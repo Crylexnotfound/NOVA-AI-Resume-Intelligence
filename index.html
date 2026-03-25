@@ -473,7 +473,7 @@
                             <span>Full Analysis</span>
                             <small>Complete deep dive</small>
                         </button>
-                        <button type="button" class="mode-card" data-mode="roast" onclick="app.selectMode(this)">
+                        <button type="button" class="mode-card" data-mode="review" onclick="app.selectMode(this)">
                             <i class="fas fa-fire"></i>
                             <span>Resume Review</span>
                             <small>Candid and constructive</small>
@@ -545,7 +545,7 @@
                         onclick="event.preventDefault(); app.switchTab(this)">
                         <i class="fas fa-clipboard-list"></i> Analysis
                     </button>
-                    <button type="button" class="tab" data-tab="roast"
+                    <button type="button" class="tab" data-tab="review"
                         onclick="event.preventDefault(); app.switchTab(this)">
                         <i class="fas fa-fire"></i> Review
                     </button>
@@ -584,15 +584,15 @@
                         </div>
                     </div>
 
-                    <!-- Roast Panel -->
-                    <div class="tab-panel" id="panel-roast">
-                        <div class="roast-card">
-                            <div class="roast-header">
+                    <!-- Review Panel -->
+                    <div class="tab-panel" id="panel-review">
+                        <div class="review-card">
+                            <div class="review-header">
                                 <i class="fas fa-fire"></i>
                                 <h3>Resume Review</h3>
-                                <span class="roast-warning">Growth-focused suggestions</span>
+                                <span class="review-warning">Growth-focused suggestions</span>
                             </div>
-                            <div class="roast-content" id="roast-content">
+                            <div class="review-content" id="review-content">
                                 <!-- Populated by JS -->
                             </div>
                         </div>
@@ -982,7 +982,7 @@
     <!-- 14. Chat — AI coach chat; depends on PuterService, Visuals -->
     <script src="./js/chat.js"></script>
 
-    <!-- 15. Career — career prediction and roast; depends on PuterService, Prompts, Visuals -->
+    <!-- 15. Career — career prediction and review; depends on PuterService, Prompts, Visuals -->
     <script src="./js/career.js"></script>
 
     <!-- 16. App — thin orchestrator; initialises all modules, exposes global app object -->

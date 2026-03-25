@@ -15,7 +15,7 @@ var Upload = {
     currentFile: null,          // The currently selected File object (null if none)
     resumeText: '',             // Extracted plain text from the uploaded PDF
     analysisResult: null,       // Parsed AI analysis result object
-    selectedMode: 'full',       // Active analysis mode: 'full' | 'roast' | 'job-match' | 'interview'
+    selectedMode: 'full',       // Active analysis mode: 'full' | 'review' | 'job-match' | 'interview'
     selectedTemplate: 'professional',
     selectedPalette: 'blue',
     _generatedResumeData: null, // Parsed data from the last resume generation call
@@ -149,10 +149,10 @@ var Upload = {
         Career.loadCareerPrediction();
     },
 
-    // ---- RESUME ROAST LAZY LOAD ----
+    // ---- RESUME REVIEW LAZY LOAD ----
 
-    loadRoast: function () {
-        Career.loadRoast();
+    loadReview: function () {
+        Career.loadReview();
     },
 
     // ---- HISTORY PLACEHOLDER ----

@@ -1,7 +1,7 @@
 // NOVA - Career Module
-// Handles career prediction and resume roast functionality:
+// Handles career prediction and resume review functionality:
 //   - Career path prediction based on resume
-//   - Resume roast (candid feedback)
+//   - Resume review (candid feedback)
 //   - Lazy-loaded content for performance
 //
 // Depends on: PuterService, Prompts, Visuals, Upload (for resumeText)
@@ -97,31 +97,32 @@ var Career = {
         }
     },
 
-    // ---- RESUME ROAST ----
+    // ---- RESUME REVIEW ----
 
-    // Called lazily on first visit to the roast tab
-    loadRoast: async function () {
+    // Called lazily on first visit to the review tab
+    loadReview: async function () {
         if (!Upload.resumeText) return;
 
-        var container = document.getElementById('roast-content');
+        var container = document.getElementById('review-content');
         if (!container) return;
 
-        container.innerHTML = '<div class="loading-dots">Roasting your resume...</div>';
+        // Visual loading state
+        container.innerHTML = '<div class="loading-dots">Reviewing your resume...</div>';
 
         try {
-            var prompt = Prompts.roast(Upload.resumeText);
+            var prompt = Prompts.review(Upload.resumeText);
             var result = await PuterService.aiChat(prompt);
 
-            // Parse markdown
+            // Parse markdown if available
             if (typeof marked !== 'undefined') {
                 result = marked.parse(result);
             }
 
-            container.innerHTML = '<div class="roast-content">' + result + '</div>';
+            container.innerHTML = '<div class="review-content">' + result + '</div>';
 
         } catch (error) {
-            console.error('Roast failed:', error);
-            container.innerHTML = '<p>Failed to roast resume. Please try again.</p>';
+            console.error('Review failed:', error);
+            container.innerHTML = '<p>Failed to review resume. Please try again.</p>';
         }
     }
 };

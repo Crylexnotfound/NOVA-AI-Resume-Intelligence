@@ -11,7 +11,7 @@ console.log('app.js script loaded');
 //   Jobs        (js/jobs.js)         — job search and listings
 //   ResumeGen   (js/resumeGen.js)    — resume generation and PDF export
 //   Chat        (js/chat.js)         — AI coach chat
-//   Career      (js/career.js)       — career prediction and roast
+//   Career      (js/career.js)       — career prediction and review
 //   Auth        (js/auth.js)         — sign-in / sign-out via Puter
 //   Visuals     (js/visuals.js)      — cursor, Three.js orb, toasts, overlays
 //   Helpers     (js/helpers.js)       — pure utility functions

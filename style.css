@@ -1928,15 +1928,15 @@ body:has(button:hover) .custom-cursor {
     color: var(--accent-cyan);
 }
 
-/* ---- ROAST PANEL ---- */
-.roast-card {
+/* ---- REVIEW PANEL ---- */
+.review-card {
     background: var(--bg-card);
     border: 1px solid rgba(239, 68, 68, 0.2);
     border-radius: var(--radius-xl);
     overflow: hidden;
 }
 
-.roast-header {
+.review-header {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1945,24 +1945,24 @@ body:has(button:hover) .custom-cursor {
     border-bottom: 1px solid rgba(239, 68, 68, 0.1);
 }
 
-.roast-header i {
+.review-header i {
     color: var(--accent-orange);
     font-size: 20px;
 }
 
-.roast-header h3 {
+.review-header h3 {
     font-size: 18px;
     font-weight: 700;
 }
 
-.roast-warning {
+.review-warning {
     margin-left: auto;
     font-size: 12px;
     color: var(--text-dim);
     font-style: italic;
 }
 
-.roast-content {
+.review-content {
     padding: 28px;
     font-size: 15px;
     line-height: 1.8;

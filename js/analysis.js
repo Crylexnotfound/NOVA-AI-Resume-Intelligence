@@ -48,7 +48,7 @@ var Analysis = {
 
             // Step 2: Select prompt based on mode
             var prompt;
-            if (Upload.selectedMode === 'roast') prompt = Prompts.roast(Upload.resumeText);
+            if (Upload.selectedMode === 'review') prompt = Prompts.review(Upload.resumeText);
             else if (Upload.selectedMode === 'interview') prompt = Prompts.interview(Upload.resumeText, jobDescription);
             else if (Upload.selectedMode === 'job-match') prompt = Prompts.jobMatch(Upload.resumeText, jobDescription);
             else prompt = Prompts.fullAnalysis(Upload.resumeText, jobDescription);
@@ -84,9 +84,9 @@ var Analysis = {
             Visuals.updateAnalysisStep(3, 'Generating insights...');
 
             // Step 4: Apply results based on mode
-            if (Upload.selectedMode === 'roast') {
+            if (Upload.selectedMode === 'review') {
                 Upload.analysisResult = Upload.analysisResult || {};
-                Upload.analysisResult.roast = rawResult;
+                Upload.analysisResult.review = rawResult;
                 this._applyFullAnalysis(await PuterService.aiChat(Prompts.fullAnalysis(Upload.resumeText, jobDescription)));
             } else if (Upload.selectedMode === 'interview') {
                 var parsed = Helpers.parseJSON(rawResult);
@@ -393,7 +393,7 @@ var Analysis = {
         this.switchTabByName(el.dataset.tab);
     },
 
-    // Also lazy-loads career prediction and roast content on first visit
+    // Also lazy-loads career prediction and review content on first visit
     switchTabByName: function (name) {
         console.log('[NOVA] Switching to tab:', name);
 
@@ -412,10 +412,10 @@ var Analysis = {
             Upload.loadCareerPrediction();
         }
 
-        // Lazy-load roast on first visit to roast tab
-        if (name === 'roast' && !document.getElementById('roast-content').dataset.loaded) {
-            document.getElementById('roast-content').dataset.loaded = 'true';
-            Upload.loadRoast();
+        // Lazy-load review on first visit to review tab
+        if (name === 'review' && !document.getElementById('review-content').dataset.loaded) {
+            document.getElementById('review-content').dataset.loaded = 'true';
+            Upload.loadReview();
         }
     },
 

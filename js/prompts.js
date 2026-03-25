@@ -41,7 +41,7 @@ const Prompts = {
             '}';
     },
 
-    roast(resumeText) {
+    review(resumeText) {
         return 'You are a supportive resume reviewer. Provide a candid, constructive review that highlights strengths and suggests clear improvements in an encouraging tone.\n\n' +
             'Resume:\n' + resumeText + '\n\n' +
             'Guidelines:\n' +

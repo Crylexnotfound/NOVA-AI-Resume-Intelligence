@@ -124,6 +124,8 @@ var app = {
     // ---- ANALYSIS DELEGATES ----
     analyzeResume: function () { Analysis.analyzeResume(); },
     reAnalyze: function () { Analysis.reAnalyze(); },
+    generateInterviewQuestions: function () { Analysis.generateInterviewQuestions(); },
+    submitInterviewAnswer: function (idx) { Analysis.submitAnswer(idx); },
     exportPDF: function () { Analysis.exportPDF(); },
     switchTab: function (el) { Analysis.switchTab(el); },
 

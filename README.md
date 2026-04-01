@@ -62,3 +62,21 @@ This project is optimized for AI-assisted development. You can ask the AI agent 
 ## 📂 Project Structure
 
 Currently, this repository contains the project structure (empty files) to serve as a template. Please add logic to the corresponding files in `js/` and `lib/` as you develop features.
+
+---
+
+## 🧠 The Science of Semantic Analysis
+
+NOVA AI Resume Intelligence is built on the cutting edge of Natural Language Processing (NLP). Unlike traditional ATS systems that rely on rigid keyword matching, NOVA employs **Semantic Analysis** to understand the true intent and impact of a candidate's experience.
+
+### 📐 High-Dimensional Vector Embeddings
+At its core, NOVA transforms text into **Vector Embeddings**. Each word, phrase, and experience is mapped into a **High-Dimensional Space** where semantic meaning is represented numerically. This allows the system to recognize that "Led a team of developers" and "Oversaw a group of engineers" are semantically nearly identical, even if they share no common keywords.
+
+### ⚖️ Cosine Similarity & Semantic Distance
+To evaluate a candidate's fit for a role, NOVA calculates the **Cosine Similarity** between the resume vector and the job description vector. By measuring the **Semantic Distance** in vector space, NOVA can quantify exactly how closely a candidate's background aligns with the target requirements, regardless of the specific terminology used.
+
+### ⚡ Transformer-based Attention Mechanisms
+Using state-of-the-art **Transformer architectures** (GPT-4o), NOVA leverages **Attention Mechanisms** to weigh the importance of different parts of a resume. It understands that a "Senior" title in a recent role carries significantly more "Expertise Weight" than a "Junior" title from a decade ago. This dynamic contextual awareness is what sets NOVA apart from traditional weighted scorers.
+
+### 🔬 Why Not RAG? (The Engineering Choice)
+While Hybrid Vector-RAG (Retrieval-Augmented Generation) is powerful for massive datasets, NOVA utilizes a direct **Context-Injected Semantic Analysis** (Algorithm 3). This architectural decision minimizes **Inference Latency** and eliminates the need for external Vector Databases like Pinecone, providing a lightning-fast, privacy-first experience directly in your browser.

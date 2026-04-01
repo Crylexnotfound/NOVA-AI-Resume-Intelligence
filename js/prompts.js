@@ -80,24 +80,32 @@ const Prompts = {
     },
 
     interview(resumeText, jobDescription) {
-        var jdPart = '';
+        var jdPart = 'General specialized roles';
         if (jobDescription) {
-            jdPart = '\nTarget Role:\n' + jobDescription + '\n';
+            jdPart = 'Target Job Description:\n' + jobDescription;
         }
 
-        return 'You are a senior hiring manager and interview coach. Generate likely interview questions.\n\n' +
-            'Resume:\n' + resumeText + '\n' + jdPart + '\n' +
-            'Respond ONLY with valid JSON (no markdown, no code blocks, no extra text):\n' +
+        return 'You are a Senior Technical Recruiter and Career Coach. Generate a list of HIGHLY TARGETED interview questions.\n\n' +
+            'Candidate Resume:\n' + resumeText + '\n\n' +
+            jdPart + '\n\n' +
+            'INSTRUCTIONS:\n' +
+            '- Blend the candidate\'s actual experience with the requirements of the job description.\n' +
+            '- Prioritize keywords from the job description to test alignment.\n' +
+            '- If no job description is provided, analyze the resume for likely target roles and generate questions for those.\n' +
+            '- Questions must be specific, not generic. Use "Based on your experience with X, how would you handle Y in this role?".\n' +
+            '- Respond ONLY with valid JSON (no markdown, no code blocks, no extra text).\n\n' +
+            'REQUIRED JSON STRUCTURE:\n' +
             '{\n' +
             '    "questions": [\n' +
             '        {\n' +
-            '            "question": "<interview question>",\n' +
+            '            "question": "<specific interview question>",\n' +
             '            "type": "<Behavioral|Technical|Situational|Culture Fit>",\n' +
-            '            "tip": "<coaching tip>"\n' +
+            '            "difficulty": "<Easy|Medium|Hard>",\n' +
+            '            "tip": "<coaching tip on what the interviewer is looking for>"\n' +
             '        }\n' +
             '    ]\n' +
             '}\n' +
-            'Generate exactly 8 questions - mix of types.';
+            'Generate exactly 8 questions - a mix of types and difficulties.';
     },
 
     careerPrediction(resumeText) {
@@ -145,6 +153,35 @@ const Prompts = {
             contextPart + scorePart + '\n\n' +
             'User: ' + message + '\n\n' +
             'Give specific, actionable advice. Be concise but thorough.';
+    },
+
+    interviewFeedback(question, answer, resumeText, jobDescription) {
+        var context = '';
+        if (resumeText) context += 'Candidate Resume Context:\n' + resumeText + '\n\n';
+        if (jobDescription) context += 'Target Job Description:\n' + jobDescription + '\n\n';
+
+        return 'You are an expert Interview Coach and Technical Recruiter. Provide HIGHLY DETAILED, analytical feedback on the candidate\'s answer.\n\n' +
+            context +
+            'Question: ' + question + '\n' +
+            'Candidate\'s Answer: ' + answer + '\n\n' +
+            'INSTRUCTIONS:\n' +
+            '- Be brutally honest but constructive.\n' +
+            '- Evaluate based on three pillars: Technical Accuracy, Communication Clarity, and Structure (e.g. STAR method).\n' +
+            '- Provide a model answer that would score a 100/100.\n' +
+            '- Respond ONLY with valid JSON (no markdown, no code blocks, no extra text).\n\n' +
+            'REQUIRED JSON STRUCTURE:\n' +
+            '{\n' +
+            '    "score": <number 0-100>,\n' +
+            '    "verdict": "<one line summary>",\n' +
+            '    "pillars": {\n' +
+            '        "content": { "score": <0-100>, "feedback": "<what was good/bad about accuracy>" },\n' +
+            '        "communication": { "score": <0-100>, "feedback": "<what was good/bad about clarity/filler words>" },\n' +
+            '        "structure": { "score": <0-100>, "feedback": "<what was good/bad about logic/STAR method>" }\n' +
+            '    },\n' +
+            '    "strengths": ["<strength1>", "<strength2>"],\n' +
+            '    "improvements": ["<improvement1>", "<improvement2>"],\n' +
+            '    "modelAnswer": "<the ideal response to this question>"\n' +
+            '}';
     },
 
     generateResume(resumeText, analysisData, templateStyle, jobDescription) {

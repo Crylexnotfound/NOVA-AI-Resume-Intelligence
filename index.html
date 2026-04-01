@@ -689,9 +689,23 @@
                     <div class="tab-panel" id="panel-interview">
                         <div class="cl-header">
                             <h3>Interview Question Practice</h3>
-                            <p>Practice answers and request feedback</p>
+                            <p>Tailored mock interview questions based on your resume and target role.</p>
                         </div>
-                        <div id="interview-root" class="interview-content"></div>
+                        
+                        <div class="jd-input-wrap" style="margin-bottom:24px">
+                            <label>Interview Context <span class="optional">(paste Job Description or Role)</span></label>
+                            <textarea id="int-job-description" placeholder="Paste the job description or role you're practicing for here..."></textarea>
+                            <button type="button" class="btn-glow" style="margin-top:16px" onclick="app.generateInterviewQuestions()">
+                                <span class="btn-glow-text"><i class="fas fa-microphone"></i> Start AI Interview Prep</span>
+                            </button>
+                        </div>
+
+                        <div id="interview-root" class="interview-content">
+                            <div class="text-center" style="padding:40px; color:var(--text-dim)">
+                                <i class="fas fa-microphone-slash" style="font-size:32px; margin-bottom:16px; display:block"></i>
+                                <p>Click the button above to generate 8 targeted interview questions.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Resume Generator Panel -->

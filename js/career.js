@@ -48,7 +48,7 @@ var Career = {
 
                 // Career paths
                 if (data.careerPaths && data.careerPaths.length) {
-                    html += '<div class="prediction-section"><h4><i class="fas fa-map-signs"></i> Recommended Career Paths</h4><ul class="career-list">';
+                    html += '<div class="career-card"><h4><i class="fas fa-map-signs"></i> Recommended Career Paths</h4><ul class="career-list">';
                     data.careerPaths.forEach(function (path) {
                         html += '<li class="career-item"><strong>' + path.title + '</strong><p>' + path.description + '</p></li>';
                     });
@@ -57,7 +57,7 @@ var Career = {
 
                 // Salary projections
                 if (data.salaryProjections) {
-                    html += '<div class="prediction-section"><h4><i class="fas fa-coins"></i> Market Value & Salary Projection</h4>';
+                    html += '<div class="career-card"><h4><i class="fas fa-coins"></i> Market Value & Salary Projection</h4>';
                     if (data.salaryProjections.range) {
                         html += '<div class="salary-range-highlight">' + data.salaryProjections.range + '</div>';
                     }
@@ -67,16 +67,16 @@ var Career = {
 
                 // Growth opportunities
                 if (data.growthOpportunities && data.growthOpportunities.length) {
-                    html += '<div class="prediction-section"><h4><i class="fas fa-arrow-up-right-dots"></i> Growth Opportunities</h4><ul class="growth-list">';
+                    html += '<div class="career-card"><h4><i class="fas fa-arrow-up-right-dots"></i> Growth Opportunities</h4><ul class="growth-list">';
                     data.growthOpportunities.forEach(function (opp) {
-                        html += '<li>' + opp + '</li>';
+                        html += '<li><i class="fas fa-circle-check"></i> ' + opp + '</li>';
                     });
                     html += '</ul></div>';
                 }
 
                 // Strategy/Advice
                 if (data.strategy || data.advice) {
-                    html += '<div class="prediction-section career-strategy"><h4><i class="fas fa-lightbulb"></i> Strategic Career Advice</h4>';
+                    html += '<div class="career-card career-strategy"><h4><i class="fas fa-lightbulb"></i> Strategic Career Advice</h4>';
                     html += '<p>' + (data.strategy || data.advice) + '</p>';
                     html += '</div>';
                 }

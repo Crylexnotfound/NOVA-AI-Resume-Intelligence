@@ -53,18 +53,26 @@ var Helpers = {
 
     parseJSON: function (text) {
         if (!text) return null;
+        text = text.trim();
         // Direct parse
         try { return JSON.parse(text); } catch (e) { }
-        // Extract JSON object from text
+        // Extract JSON object from text (more aggressive)
         try {
-            var match = text.match(/\{[\s\S]*\}/);
-            if (match) return JSON.parse(match[0]);
+            var start = text.indexOf('{');
+            var end = text.lastIndexOf('}');
+            if (start !== -1 && end !== -1 && end > start) {
+                var jsonStr = text.substring(start, end + 1);
+                return JSON.parse(jsonStr);
+            }
         } catch (e) { }
         // Remove markdown code blocks then try
         try {
             var cleaned = text.replace(/```json?\s*/g, '').replace(/```\s*/g, '').trim();
-            var match2 = cleaned.match(/\{[\s\S]*\}/);
-            if (match2) return JSON.parse(match2[0]);
+            var start2 = cleaned.indexOf('{');
+            var end2 = cleaned.lastIndexOf('}');
+            if (start2 !== -1 && end2 !== -1) {
+                return JSON.parse(cleaned.substring(start2, end2 + 1));
+            }
         } catch (e) { }
         return null;
     },

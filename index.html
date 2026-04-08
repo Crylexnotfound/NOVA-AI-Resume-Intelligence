@@ -691,18 +691,23 @@
                             <h3>Interview Question Practice</h3>
                             <p>Tailored mock interview questions based on your resume and target role.</p>
                         </div>
-                        
+
                         <div class="jd-input-wrap" style="margin-bottom:24px">
-                            <label>Interview Context <span class="optional">(paste Job Description or Role)</span></label>
-                            <textarea id="int-job-description" placeholder="Paste the job description or role you're practicing for here..."></textarea>
-                            <button type="button" class="btn-glow" style="margin-top:16px" onclick="app.generateInterviewQuestions()">
-                                <span class="btn-glow-text"><i class="fas fa-microphone"></i> Start AI Interview Prep</span>
+                            <label>Interview Context <span class="optional">(paste Job Description or
+                                    Role)</span></label>
+                            <textarea id="int-job-description"
+                                placeholder="Paste the job description or role you're practicing for here..."></textarea>
+                            <button type="button" class="btn-glow" style="margin-top:16px"
+                                onclick="app.generateInterviewQuestions()">
+                                <span class="btn-glow-text"><i class="fas fa-microphone"></i> Start AI Interview
+                                    Prep</span>
                             </button>
                         </div>
 
                         <div id="interview-root" class="interview-content">
                             <div class="text-center" style="padding:40px; color:var(--text-dim)">
-                                <i class="fas fa-microphone-slash" style="font-size:32px; margin-bottom:16px; display:block"></i>
+                                <i class="fas fa-microphone-slash"
+                                    style="font-size:32px; margin-bottom:16px; display:block"></i>
                                 <p>Click the button above to generate 8 targeted interview questions.</p>
                             </div>
                         </div>
@@ -998,6 +1003,9 @@
 
     <!-- 15. Career — career prediction and review; depends on PuterService, Prompts, Visuals -->
     <script src="./js/career.js"></script>
+
+    <!-- 15b. Voice Monitor — audio analysis and speech recognition -->
+    <script src="./js/voice-monitor.js"></script>
 
     <!-- 16. App — thin orchestrator; initialises all modules, exposes global app object -->
     <script src="./js/app.js"></script>

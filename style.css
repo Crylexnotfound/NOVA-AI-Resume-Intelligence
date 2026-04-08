@@ -5655,3 +5655,221 @@ body:has(button:hover) .custom-cursor {
     border-radius: 0px;
     font-weight: 600;
 }
+
+/* ---- VOICE MONITOR ---- */
+.mic-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s var(--ease-out-expo);
+    position: relative;
+    cursor: pointer;
+}
+
+.mic-btn:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--accent-violet);
+    color: var(--accent-violet);
+    transform: scale(1.05);
+}
+
+.mic-btn.active {
+    background: var(--accent-red);
+    color: #fff;
+    border-color: var(--accent-red);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    animation: micPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.waveform-container {
+    height: 40px;
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    display: none; /* Shown when recording */
+    border: 1px solid var(--border-subtle);
+}
+
+.waveform-container.active {
+    display: block;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.waveform-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.voice-meta-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent-violet);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+
+/* ---- CUSTOM ROLE INPUTS ---- */
+.custom-inputs-overlay {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-top: 24px;
+    animation: slideDown 0.4s var(--ease-out-expo) forwards;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- VOICE TOGGLE ---- */
+.btn-voice-toggle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-voice-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    transform: scale(1.1);
+}
+
+.btn-voice-toggle.muted {
+    color: var(--accent-red);
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* ---- DEEP ANALYSIS REPORT ---- */
+.report-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.report-container {
+    width: 100%;
+    max-width: 1000px;
+    max-height: 90vh;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.close-report {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 32px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.close-report:hover {
+    color: #fff;
+}
+
+.final-report-header {
+    padding: 60px 40px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15));
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: center;
+}
+
+.final-report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 32px;
+    padding: 40px;
+}
+
+.report-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.score-gradient-text {
+    font-size: 72px;
+    font-weight: 900;
+    background: linear-gradient(to right, var(--accent-violet), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.pillar-radar-item {
+    margin-bottom: 20px;
+}
+
+.pillar-radar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pillar-radar-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pillar-radar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1.5s var(--ease-out-expo);
+}

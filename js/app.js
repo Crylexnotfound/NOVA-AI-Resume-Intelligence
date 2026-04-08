@@ -126,6 +126,7 @@ var app = {
     reAnalyze: function () { Analysis.reAnalyze(); },
     generateInterviewQuestions: function () { Analysis.generateInterviewQuestions(); },
     submitInterviewAnswer: function (idx) { Analysis.submitAnswer(idx); },
+    toggleInterviewMic: function (idx) { Analysis.toggleInterviewMic(idx); },
     exportPDF: function () { Analysis.exportPDF(); },
     switchTab: function (el) { Analysis.switchTab(el); },
 

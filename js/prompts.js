@@ -155,24 +155,33 @@ const Prompts = {
             'Give specific, actionable advice. Be concise but thorough.';
     },
 
-    interviewFeedback(question, answer, resumeText, jobDescription) {
+    interviewFeedback(question, answer, resumeText, jobDescription, voiceMeta) {
         var context = '';
         if (resumeText) context += 'Candidate Resume Context:\n' + resumeText + '\n\n';
         if (jobDescription) context += 'Target Job Description:\n' + jobDescription + '\n\n';
 
+        var voiceContext = '';
+        if (voiceMeta) {
+            voiceContext = '\nVOICE METADATA:\n' +
+                '- Pacing: ' + voiceMeta.pacing + ' Words Per Minute\n' +
+                '- Energy Variance: ' + voiceMeta.energy + '% (measures enthusiasm/monotone)\n';
+        }
+
         return 'You are an expert Interview Coach and Technical Recruiter. Provide HIGHLY DETAILED, analytical feedback on the candidate\'s answer.\n\n' +
             context +
             'Question: ' + question + '\n' +
-            'Candidate\'s Answer: ' + answer + '\n\n' +
+            'Candidate\'s Answer: ' + answer + '\n' +
+            voiceContext + '\n' +
             'INSTRUCTIONS:\n' +
             '- Be brutally honest but constructive.\n' +
             '- Evaluate based on three pillars: Technical Accuracy, Communication Clarity, and Structure (e.g. STAR method).\n' +
+            '- If VOICE METADATA is provided, add ONE extra sentence at the beginning of "verdict" or as a "soft-skill bonus" addressing their pacing or energy (e.g., "Your enthusiasm was infectious but try to slow down slightly").\n' +
             '- Provide a model answer that would score a 100/100.\n' +
             '- Respond ONLY with valid JSON (no markdown, no code blocks, no extra text).\n\n' +
             'REQUIRED JSON STRUCTURE:\n' +
             '{\n' +
             '    "score": <number 0-100>,\n' +
-            '    "verdict": "<one line summary>",\n' +
+            '    "verdict": "<one line summary including soft-skill bonus if meta provided>",\n' +
             '    "pillars": {\n' +
             '        "content": { "score": <0-100>, "feedback": "<what was good/bad about accuracy>" },\n' +
             '        "communication": { "score": <0-100>, "feedback": "<what was good/bad about clarity/filler words>" },\n' +

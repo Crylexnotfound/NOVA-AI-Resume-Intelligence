@@ -49,6 +49,7 @@ var app = {
             ResumeGen.init();       // Resume generation module
             Chat.init();            // Chat module
             Career.init();          // Career module
+            Interview.init();       // Interview module
 
             // Set up the user dropdown click-outside-to-close behaviour
             this.initDropdownListeners();
@@ -124,9 +125,9 @@ var app = {
     // ---- ANALYSIS DELEGATES ----
     analyzeResume: function () { Analysis.analyzeResume(); },
     reAnalyze: function () { Analysis.reAnalyze(); },
-    generateInterviewQuestions: function () { Analysis.generateInterviewQuestions(); },
-    submitInterviewAnswer: function (idx) { Analysis.submitAnswer(idx); },
-    toggleInterviewMic: function (idx) { Analysis.toggleInterviewMic(idx); },
+    generateInterviewQuestions: function () { Interview.generateQuestions(); },
+    submitInterviewAnswer: function (idx) { Interview.submitAnswer(idx); },
+    toggleInterviewMic: function (idx) { Interview.toggleMic(idx); },
     exportPDF: function () { Analysis.exportPDF(); },
     switchTab: function (el) { Analysis.switchTab(el); },
 
